@@ -139,60 +139,46 @@ def mostra_maschera_inserimento():
     dati_attuali = db_utente[db_utente["Mese"] == mese_scelto].iloc[0]
     
     st.markdown("---")
-    col_pop1, col_pop2 = st.columns(2)
+    # 4 colonne parallele per non dover mai scorrere la pagina verso il basso
+    col1, col2, col3, col4 = st.columns(4)
     
-    with col_pop1:
-        st.markdown("#### 💰 Entrate e Liquidità")
-        st.markdown("<p class='label-maschera'>Fatturato Imponibile Mensile (€)</p>", unsafe_allow_html=True)
-        f_val = st.number_input("f_n", min_value=0.0, value=float(dati_attuali["Fatturato"]), step=1000.0, label_visibility="collapsed")
-        st.markdown(f"<p class='anteprima-valuta'>Confermato: € {f_val:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.') + "</p>", unsafe_allow_html=True)
+    with col1:
+        st.markdown("#### 🚀 Prestazioni")
+        st.markdown("<p class='label-maschera'>Fatturato Imponibile (€)</p>", unsafe_allow_html=True)
+        f_val = st.number_input("f_n_new", min_value=0.0, value=float(dati_attuali["Fatturato"]), step=5000.0, label_visibility="collapsed")
         
-        st.markdown("<p class='label-maschera'>Margine Medio Stimato (es. 0.25)</p>", unsafe_allow_html=True)
-        m_val = st.number_input("m_n", min_value=0.0, max_value=1.0, value=float(dati_attuali["Margine %"]), format="%.2f", step=0.01, label_visibility="collapsed")
+        st.markdown("<p class='label-maschera'>Margine Stimato (es. 0.25)</p>", unsafe_allow_html=True)
+        m_val = st.number_input("m_n_new", min_value=0.0, max_value=1.0, value=float(dati_attuali["Margine %"]), format="%.2f", step=0.01, label_visibility="collapsed")
+
+    with col2:
+        st.markdown("#### 💰 Cassa e Merci")
+        st.markdown("<p class='label-maschera'>Saldo Banca (Cassa) (€)</p>", unsafe_allow_html=True)
+        banca_val = st.number_input("banca_n_new", min_value=0.0, value=float(dati_attuali["Saldo Banca (Cassa)"]), step=5000.0, label_visibility="collapsed")
         
-        st.markdown("<p class='label-maschera'>Saldo Disponibile in Banca (€)</p>", unsafe_allow_html=True)
-        banca_val = st.number_input("b_n", min_value=0.0, value=float(dati_attuali["Saldo Banca (Cassa)"]), step=1000.0, label_visibility="collapsed")
-        st.markdown(f"<p class='anteprima-valuta'>Confermato: € {banca_val:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.') + "</p>", unsafe_allow_html=True)
+        st.markdown("<p class='label-maschera'>Valore Stima Magazzino (€)</p>", unsafe_allow_html=True)
+        mag_val = st.number_input("mag_n_new", min_value=0.0, value=float(dati_attuali["Valore Magazzino"]), step=1000.0, label_visibility="collapsed")
+
+    with col3:
+        st.markdown("#### 📉 Costi Struttura")
+        st.markdown("<p class='label-maschera'>Costi Variabili Merci (€)</p>", unsafe_allow_html=True)
+        cv_val = st.number_input("cv_n_new", min_value=0.0, value=float(dati_attuali["Costi Variabili"]), step=1000.0, label_visibility="collapsed")
         
-    with col_pop2:
-        st.markdown("#### 📉 Uscite, Scadenze e Magazzino")
-        st.markdown("<p class='label-maschera'>Costi Variabili delle Merci (€)</p>", unsafe_allow_html=True)
-        cv_val = st.number_input("cv_n", min_value=0.0, value=float(dati_attuali["Costi Variabili"]), step=1000.0, label_visibility="collapsed")
-        st.markdown(f"<p class='anteprima-valuta'>Confermato: € {cv_val:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.') + "</p>", unsafe_allow_html=True)
+        st.markdown("<p class='label-maschera'>Costi Fissi (Fornitori) (€)</p>", unsafe_allow_html=True)
+        cf_val = st.number_input("cf_n_new", min_value=0.0, value=float(dati_attuali["Costi Fissi (Fornitori)"]), step=1000.0, label_visibility="collapsed")
         
-        st.markdown("<p class='label-maschera'>Scadenza Fornitori / Costi Fissi (€)</p>", unsafe_allow_html=True)
-        cf_val = st.number_input("cf_n", min_value=0.0, value=float(dati_attuali["Costi Fissi (Fornitori)"]), step=1000.0, label_visibility="collapsed")
-        st.markdown(f"<p class='anteprima-valuta'>Confermato: € {cf_val:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.') + "</p>", unsafe_allow_html=True)
+        st.markdown("<p class='label-maschera'>Mutui e Leasing (€)</p>", unsafe_allow_html=True)
+        ml_val = st.number_input("ml_n_new", min_value=0.0, value=float(dati_attuali["Mutui e Leasing"]), step=500.0, label_visibility="collapsed")
+
+    with col4:
+        st.markdown("#### 🏛️ Fisco e Previsioni")
+        st.markdown("<p class='label-maschera'>Debiti IVA e Contributi (€)</p>", unsafe_allow_html=True)
+        iva_val = st.number_input("iva_n_new", min_value=0.0, value=float(dati_attuali["Debiti IVA e Contributi"]), step=1000.0, label_visibility="collapsed")
         
-        st.markdown("<p class='label-maschera'>Rate Mutui e Leasing Finanziari (€)</p>", unsafe_allow_html=True)
-        ml_val = st.number_input("ml_n", min_value=0.0, value=float(dati_attuali["Mutui e Leasing"]), step=1000.0, label_visibility="collapsed")
-        st.markdown(f"<p class='anteprima-valuta'>Confermato: € {ml_val:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.') + "</p>", unsafe_allow_html=True)
+        st.markdown("<p class='label-maschera'>🔮 Incassi Mese Prossimo (€)</p>", unsafe_allow_html=True)
+        scadenze_val = st.number_input("scadenze_n_final", min_value=0.0, value=0.0, step=1000.0, label_visibility="collapsed")
         
-        st.markdown("<p class='label-maschera'>Debiti IVA / INPS non versati (€)</p>", unsafe_allow_html=True)
-        iva_val = st.number_input("iva_n", min_value=0.0, value=float(dati_attuali["Debiti IVA e Contributi"]), step=1000.0, label_visibility="collapsed")
-        st.markdown(f"<p class='anteprima-valuta'>Confermato: € {iva_val:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.') + "</p>", unsafe_allow_html=True)
-        
-        st.markdown("<p class='label-maschera'>Valore di Stima del Magazzino (€)</p>", unsafe_allow_html=True)
-        mag_val = st.number_input("mag_n", min_value=0.0, value=float(dati_attuali["Valore Magazzino"]), step=1000.0, label_visibility="collapsed")
-        
-        st.markdown("<p class='label-maschera'>🔮 Fatture da Incassare Mese Prossimo (Opzionale) (€)</p>", unsafe_allow_html=True)
-        scadenze_val = st.number_input("scadenze_n", min_value=0.0, value=0.0, step=1000.0, label_visibility="collapsed")
-        
-        st.markdown("<p class='label-maschera'>🏛️ Rateizzazioni Fisco/INPS Extra (Opzionale) (€)</p>", unsafe_allow_html=True)
-        rateizzazioni_val = st.number_input("rateizzazioni_n", min_value=0.0, value=0.0, step=500.0, label_visibility="collapsed")
-        
-        st.markdown("<p class='label-maschera'>🔮 Fatture da Incassare Mese Prossimo (Opzionale) (€)</p>", unsafe_allow_html=True)
-        scadenze_val = st.number_input("scadenze_n", min_value=0.0, value=0.0, step=1000.0, label_visibility="collapsed")
-        
-        st.markdown("<p class='label-maschera'>🏛️ Rateizzazioni Fisco/INPS Extra (Opzionale) (€)</p>", unsafe_allow_html=True)
-        rateizzazioni_val = st.number_input("rateizzazioni_n", min_value=0.0, value=0.0, step=500.0, label_visibility="collapsed")
-        
-        st.markdown("<p class='label-maschera'>🔮 Fatture da Incassare Mese Prossimo (Opzionale) (€)</p>", unsafe_allow_html=True)
-        scadenze_val = st.number_input("scadenze_n", min_value=0.0, value=0.0, step=1000.0, label_visibility="collapsed")
-        
-        st.markdown("<p class='label-maschera'>🏛️ Rateizzazioni Fisco/INPS Extra (Opzionale) (€)</p>", unsafe_allow_html=True)
-        rateizzazioni_val = st.number_input("rateizzazioni_n", min_value=0.0, value=0.0, step=500.0, label_visibility="collapsed")
-        st.markdown(f"<p class='anteprima-valuta'>Confermato: € {mag_val:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.') + "</p>", unsafe_allow_html=True)
+        st.markdown("<p class='label-maschera'>🏛️ Rateizzazioni Extra (€)</p>", unsafe_allow_html=True)
+        rateizzazioni_val = st.number_input("rateizzazioni_n_final", min_value=0.0, value=0.0, step=500.0, label_visibility="collapsed")
     
     st.markdown("---")
     if st.button("SALVA E RICALCOLA LOGICHE", use_container_width=True):
