@@ -323,7 +323,54 @@ with col_p3:
                 st.markdown("<span class='badge-ccii' style='background-color:#DCFCE7; color:#15803D;'>🟢 SOSTENIBILITÀ AZIENDALE OTTIMALE</span>", unsafe_allow_html=True)
         else:
             st.info("📥 In attesa di storico dati.")
+            # --- NUOVA SEZIONE: ANALISI FLUSSO DI CASSA REALE & ALERT SOVRA-APPROVVIGIONAMENTO ---
+st.markdown("---")
+st.markdown("### 💸 4. Monitoraggio Flusso di Cassa Reale & Alert Acquisti")
 
+if not df_attivi.empty:
+    # Calcoliamo il flusso di cassa mese per mese basandoci sulle scadenze reali inserite
+    df_cashflow = df_attivi.copy()
+    df_cashflow['Uscite Totali Mese'] = df_cashflow['Costi Variabili'] + df_cashflow['Costi Fissi (Fornitori)'] + df_cashflow['Mutui e Leasing']
+    df_cashflow['Flusso Cassa Netto'] = df_cashflow['Fatturato'] - df_cashflow['Uscite Totali Mese']
+    
+    # Creiamo una colonna di interpretazione strategica
+    condizioni = [
+        (df_cashflow['Flusso Cassa Netto'] < 0) & (df_cashflow['Costi Variabili'] > df_cashflow['Fatturato'] * 0.50),
+        (df_cashflow['Flusso Cassa Netto'] < 0),
+        (df_cashflow['Flusso Cassa Netto'] >= 0)
+    ]
+    scelte = [
+        "⚠️ CRITICO: Sovra-approvvigionamento Merci (Acquisti alti rispetto al venduto)",
+        "🚨 DEFICIT CASSA: Le uscite del mese superano gli incassi",
+        "🟢 CASSA ATTIVA: Il mese ha generato liquidità netta"
+    ]
+    df_cashflow['Stato Liquidità'] = np.select(condizioni, scelte, default="OK")
+    
+    # Prepariamo la tabella visiva per l'imprenditore
+    df_cf_vis = df_cashflow[['Mese', 'Fatturato', 'Costi Variabili', 'Costi Fissi (Fornitori)', 'Uscite Totali Mese', 'Flusso Cassa Netto', 'Stato Liquidità']]
+    
+    st.dataframe(
+        df_cf_vis,
+        column_config={
+            "Mese": st.column_config.TextColumn("Mese"),
+            "Fatturato": st.column_config.NumberColumn("Incassi (Fatturato) (€)", format="€ %,.2f"),
+            "Costi Variabili": st.column_config.NumberColumn("Scadenze Fornitori Merci (€)", format="€ %,.2f"),
+            "Costi Fissi (Fornitori)": st.column_config.NumberColumn("Spese Fisse Struttura (€)", format="€ %,.2f"),
+            "Uscite Totali Mese": st.column_config.NumberColumn("Uscite Totali (€)", format="€ %,.2f"),
+            "Flusso Cassa Netto": st.column_config.NumberColumn("Cassa Netta Mese (€)", format="€ %,.2f"),
+            "Stato Liquidità": st.column_config.TextColumn("Diagnosi Diagnostica Avanzata")
+        },
+        hide_index=True, use_container_width=True
+    )
+    
+    # Un piccolo recap totale per capire il drenaggio da inizio anno
+    drenaggio_totale = df_cashflow['Flusso Cassa Netto'].sum()
+    if drenaggio_totale < 0:
+        st.error(f"⚠️ **Riepilogo Flusso di Cassa Cumulativo:** Da inizio anno l'attività ha drenato **€ {abs(drenaggio_totale):,.2f}** di liquidità. Gli acquisti anticipati di componenti si trovano attualmente immobilizzati nel Magazzino come capitale dormiente.")
+    else:
+        st.success(f"✅ **Riepilogo Flusso di Cassa Cumulativo:** Da inizio anno l'attività ha generato **€ {drenaggio_totale:,.2f}** di cassa netta.")
+else:
+    st.info("📥 In attesa di dati storici per l'analisi del flusso di cassa.")
 # --- 9. KPI STRATEGICI ---
 st.markdown("<br>", unsafe_allow_html=True)
 st.subheader("📊 Parametri Direzionali di Controllo")
