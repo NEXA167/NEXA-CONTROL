@@ -22,7 +22,8 @@ esegui_query("""
     CREATE TABLE IF NOT EXISTS dati_mensili (
         id TEXT PRIMARY KEY, username TEXT, mese TEXT, fatturato REAL,
         margine REAL, cassa REAL, costi_variabili REAL, costi_fissi REAL,
-        mutui_leasing REAL, iva_contributi REAL, magazzino REAL
+        mutui_leasing REAL, iva_contributi REAL, magazzino REAL,
+        scadenze_attive REAL, rateizzazioni_extra REAL
     )
 """)
 esegui_query("INSERT OR IGNORE INTO utenti VALUES ('arteq', 'bloom2026', 'Arteq S.r.l.')")
@@ -173,6 +174,24 @@ def mostra_maschera_inserimento():
         
         st.markdown("<p class='label-maschera'>Valore di Stima del Magazzino (€)</p>", unsafe_allow_html=True)
         mag_val = st.number_input("mag_n", min_value=0.0, value=float(dati_attuali["Valore Magazzino"]), step=1000.0, label_visibility="collapsed")
+        
+        st.markdown("<p class='label-maschera'>🔮 Fatture da Incassare Mese Prossimo (Opzionale) (€)</p>", unsafe_allow_html=True)
+        scadenze_val = st.number_input("scadenze_n", min_value=0.0, value=0.0, step=1000.0, label_visibility="collapsed")
+        
+        st.markdown("<p class='label-maschera'>🏛️ Rateizzazioni Fisco/INPS Extra (Opzionale) (€)</p>", unsafe_allow_html=True)
+        rateizzazioni_val = st.number_input("rateizzazioni_n", min_value=0.0, value=0.0, step=500.0, label_visibility="collapsed")
+        
+        st.markdown("<p class='label-maschera'>🔮 Fatture da Incassare Mese Prossimo (Opzionale) (€)</p>", unsafe_allow_html=True)
+        scadenze_val = st.number_input("scadenze_n", min_value=0.0, value=0.0, step=1000.0, label_visibility="collapsed")
+        
+        st.markdown("<p class='label-maschera'>🏛️ Rateizzazioni Fisco/INPS Extra (Opzionale) (€)</p>", unsafe_allow_html=True)
+        rateizzazioni_val = st.number_input("rateizzazioni_n", min_value=0.0, value=0.0, step=500.0, label_visibility="collapsed")
+        
+        st.markdown("<p class='label-maschera'>🔮 Fatture da Incassare Mese Prossimo (Opzionale) (€)</p>", unsafe_allow_html=True)
+        scadenze_val = st.number_input("scadenze_n", min_value=0.0, value=0.0, step=1000.0, label_visibility="collapsed")
+        
+        st.markdown("<p class='label-maschera'>🏛️ Rateizzazioni Fisco/INPS Extra (Opzionale) (€)</p>", unsafe_allow_html=True)
+        rateizzazioni_val = st.number_input("rateizzazioni_n", min_value=0.0, value=0.0, step=500.0, label_visibility="collapsed")
         st.markdown(f"<p class='anteprima-valuta'>Confermato: € {mag_val:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.') + "</p>", unsafe_allow_html=True)
     
     st.markdown("---")
