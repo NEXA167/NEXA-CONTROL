@@ -240,10 +240,19 @@ ultime_rateizzazioni = df_attivi['rateizzazioni_extra'].iloc[-1] if 'rateizzazio
 costi_prossimo_mese = ultimo_costo_fisso + ultimo_leasing + ultime_rateizzazioni
 cassa_previsionale = ultima_cassa + ultime_scadenze - costi_prossimo_mese
 
+# NUOVO CALCOLO MATEMATICO DSCR FINANZIARIO PREDITTIVO
+numeratore_dscr = ultima_cassa + ultime_scadenze - ultimo_costo_fisso
+denominatore_dscr = ultimo_leasing + ultime_rateizzazioni
+
+if denominatore_dscr > 0:
+    dscr_calcolato = numeratore_dscr / denominatore_dscr
+else:
+    dscr_calcolato = 1.0 if numeratore_dscr >= 0 else 0.0
+
 bep_mensile_sicurezza = (ultimo_costo_fisso + ultimo_leasing) / ultimo_margine_pct if ultimo_margine_pct > 0 else 0.0
 ebitda_stimato = (ultimo_fatturato * ultimo_margine_pct) - (ultimo_costo_fisso + ultimo_leasing)
 
-incidenza_costi_pct = (costi_fissi_totali.sum() / df_attivi['Fatturato'].sum() * 100) if not df_attivi.empty and df_attivi['Fatturato'].sum() > 0 else 0.0
+incidenza_costi_pct = (costi_fissi_totali.sum() / df_attivi['Fatturato'].sum() * 100) if not df_attivi.empty and df_attivi['Fatturato'].sum() > 0 else 0.0 kpi
 
 # --- 8. DISTRIBUZIONE GRAFICI ---
 col_p1, col_p2, col_p3 = st.columns(3)
@@ -331,11 +340,25 @@ with kpi_col1:
 
 with kpi_col2:
     colore_ebitda = "#15803D" if ebitda_stimato >= 0 else "#B91C1C"
+    
+    # Determiniamo lo stato visivo del DSCR predittivo
+    if ultime_scadenze > 0 or ultime_rateizzazioni > 0:
+        if dscr_calcolato >= 1.0:
+            html_dscr = f"<span style='color:#15803D; font-weight:bold;'>Sostenibile ({dscr_calcolato:.2f}) 🟢</span>"
+        elif 0.0 < dscr_calcolato < 1.0:
+            html_dscr = f"<span style='color:#A16207; font-weight:bold;'>Attenzione ({dscr_calcolato:.2f}) 🟡</span>"
+        else:
+            html_dscr = f"<span style='color:#B91C1C; font-weight:bold;'>Critico ({dscr_calcolato:.2f}) 🔴</span>"
+    else:
+        html_dscr = "<span style='color:#64748B; font-style:italic;'>In attesa di dati previsionali</span>"
+
     st.markdown(f"""
         <div class='kpi-mini-box'>
-            <p style='color:#64748B; font-size:13px; font-weight:700; text-transform:uppercase; margin:0;'>📊 EBITDA Mensile Stimato (Margine Operativo)</p>
-            <h2 style='color:{colore_ebitda}; font-size:28px; margin:5px 0;'>€ {ebitda_stimato:,.2f}</h2>
-            <p style='color:#475569; font-size:12px; margin:0;'>Efficienza monetaria prodotta dall'attività di produzione.</p>
+            <p style='color:#64748B; font-size:13px; font-weight:700; text-transform:uppercase; margin:0;'>📊 EBITDA Mensile (Margine Operativo)</p>
+            <h2 style='color:{colore_ebitda}; font-size:26px; margin:2px 0;'>€ {ebitda_stimato:,.2f}</h2>
+            <hr style='margin:8px 0; border:0; border-top:1px dashed #CBD5E1;'>
+            <p style='color:#1E293B; font-size:13px; font-weight:700; margin:0;'>🔍 INDICE DSCR PREVISIONALE (30GG):</p>
+            <p style='font-size:16px; margin:3px 0;'>{html_dscr}</p>
         </div>
     """, unsafe_allow_html=True)
 
