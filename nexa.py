@@ -252,7 +252,7 @@ else:
 bep_mensile_sicurezza = (ultimo_costo_fisso + ultimo_leasing) / ultimo_margine_pct if ultimo_margine_pct > 0 else 0.0
 ebitda_stimato = (ultimo_fatturato * ultimo_margine_pct) - (ultimo_costo_fisso + ultimo_leasing)
 
-incidenza_costi_pct = (costi_fissi_totali.sum() / df_attivi['Fatturato'].sum() * 100) if not df_attivi.empty and df_attivi['Fatturato'].sum() > 0 else 0.0 kpi
+incidenza_costi_pct = (costi_fissi_totali.sum() / df_attivi['Fatturato'].sum() * 100) if not df_attivi.empty and df_attivi['Fatturato'].sum() > 0 else 0.0 
 
 # --- 8. DISTRIBUZIONE GRAFICI ---
 col_p1, col_p2, col_p3 = st.columns(3)
