@@ -277,6 +277,9 @@ with header_col3:
         </div>
     """, unsafe_allow_html=True)
     st.markdown("<br><br>", unsafe_allow_html=True)
+# --- SPAZIATURA DI RESPIRO PER L'HEADER ---
+st.markdown("<br><br>", unsafe_allow_html=True)
+
 # --- 8. DISTRIBUZIONE GRAFICI ---
 col_p1, col_p2, col_p3 = st.columns(3)
 
@@ -318,7 +321,6 @@ with col_p2:
 with col_p3:
     st.markdown("<div class='titolo-grafico-libero'>3. Radar Cassa & Allerta Predittiva</div>", unsafe_allow_html=True)
     
-    # Se Monica ha inserito dati predittivi, mostriamo il responso della cassa futura
     if 'scadenze_attive' in df_attivi.columns and (ultime_scadenze > 0 or ultime_rateizzazioni > 0):
         if cassa_previsionale >= 0:
             st.success(f"🟢 CASSA PREVISTA 30GG: OK\n\nSaldo stimato: € {cassa_previsionale:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.'))
@@ -328,7 +330,6 @@ with col_p3:
             st.error(f"🔴 ALLERTA SCOMPENSO DI CASSA\n\nDeficit stimato: € -{mancano_soldi:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.'))
             st.markdown(f"<p style='font-size:12px; color:#B91C1C; font-weight:600; margin-top:5px;'>⚠️ Attenzione: pianificare anticipi fatture o fidi per almeno € {mancano_soldi:,.2f} per evitare tensioni di liquidità.</p>", unsafe_allow_html=True)
     else:
-        # Se non ci sono dati predittivi, mostriamo l'analisi standard basata sul grafico storico e CCII
         if not df_attivi.empty:
             mesi_attivi = df_attivi['Mese'].tolist()
             fig_line = go.Figure()
@@ -346,52 +347,102 @@ with col_p3:
                 st.markdown("<span class='badge-ccii' style='background-color:#DCFCE7; color:#15803D;'>🟢 SOSTENIBILITÀ AZIENDALE OTTIMALE</span>", unsafe_allow_html=True)
         else:
             st.info("📥 In attesa di storico dati.")
-            # --- NUOVA SEZIONE: ANALISI FLUSSO DI CASSA REALE & ALERT SOVRA-APPROVVIGIONAMENTO ---
+
+# --- NUOVA SEZIONE: ANALISI FLUSSO DI CASSA REALE & ALERT SOVRA-APPROVVIGIONAMENTO ---
 st.markdown("---")
-st.markdown("### 💸 4. Monitoraggio Flusso di Cassa Reale & Alert Acquisti")
+st.markdown("### 💸 4. Monitoraggio Flusso di Cassa Reale & Allerte")
 
 if not df_attivi.empty:
-    # Calcoliamo il flusso di cassa mese per mese basandoci sulle scadenze reali inserite
     df_cashflow = df_attivi.copy()
     df_cashflow['Uscite Totali Mese'] = df_cashflow['Costi Variabili'] + df_cashflow['Costi Fissi (Fornitori)'] + df_cashflow['Mutui e Leasing']
     df_cashflow['Flusso Cassa Netto'] = df_cashflow['Fatturato'] - df_cashflow['Uscite Totali Mese']
     
-    # Creiamo una colonna di interpretazione strategica
-    condizioni = [
-        (df_cashflow['Flusso Cassa Netto'] < 0) & (df_cashflow['Costi Variabili'] > df_cashflow['Fatturato'] * 0.50),
-        (df_cashflow['Flusso Cassa Netto'] < 0),
-        (df_cashflow['Flusso Cassa Netto'] >= 0)
-    ]
-    scelte = [
-        "⚠️ CRITICO: Sovra-approvvigionamento Merci (Acquisti alti rispetto al venduto)",
-        "🚨 DEFICIT CASSA: Le uscite del mese superano gli incassi",
-        "🟢 CASSA ATTIVA: Il mese ha generato liquidità netta"
-    ]
-    df_cashflow['Stato Liquidità'] = np.select(condizioni, scelte, default="OK")
+    # 1. CALCOLO BADGE: Autonomia Monetaria
+    mesi_autonomia = ultima_cassa / ultimo_costo_fisso if ultimo_costo_fisso > 0 else 0.0
     
-    # Prepariamo la tabella visiva per l'imprenditore
-    df_cf_vis = df_cashflow[['Mese', 'Fatturato', 'Costi Variabili', 'Costi Fissi (Fornitori)', 'Uscite Totali Mese', 'Flusso Cassa Netto', 'Stato Liquidità']]
+    # 2. CALCOLO BADGE: Termometro Acquisti
+    tot_acquisti = df_cashflow['Costi Variabili'].sum()
+    tot_fatturato = df_cashflow['Fatturato'].sum()
+    incidenza_acquisti_pct = (tot_acquisti / tot_fatturato * 100) if tot_fatturato > 0 else 0.0
+
+    # DISEGNO DEI DUE INDICATORI VISUALI (BADGE)
+    badge_col1, badge_col2 = st.columns(2)
     
-    st.dataframe(
-        df_cf_vis,
-        column_config={
-            "Mese": st.column_config.TextColumn("Mese"),
-            "Fatturato": st.column_config.NumberColumn("Incassi (Fatturato) (€)", format="€ %,.2f"),
-            "Costi Variabili": st.column_config.NumberColumn("Scadenze Fornitori Merci (€)", format="€ %,.2f"),
-            "Costi Fissi (Fornitori)": st.column_config.NumberColumn("Spese Fisse Struttura (€)", format="€ %,.2f"),
-            "Uscite Totali Mese": st.column_config.NumberColumn("Uscite Totali (€)", format="€ %,.2f"),
-            "Flusso Cassa Netto": st.column_config.NumberColumn("Cassa Netta Mese (€)", format="€ %,.2f"),
-            "Stato Liquidità": st.column_config.TextColumn("Diagnosi Diagnostica Avanzata")
-        },
-        hide_index=True, use_container_width=True
-    )
-    
-    # Un piccolo recap totale per capire il drenaggio da inizio anno
-    drenaggio_totale = df_cashflow['Flusso Cassa Netto'].sum()
-    if drenaggio_totale < 0:
-        st.error(f"⚠️ **Riepilogo Flusso di Cassa Cumulativo:** Da inizio anno l'attività ha drenato **€ {abs(drenaggio_totale):,.2f}** di liquidità. Gli acquisti anticipati di componenti si trovano attualmente immobilizzati nel Magazzino come capitale dormiente.")
-    else:
-        st.success(f"✅ **Riepilogo Flusso di Cassa Cumulativo:** Da inizio anno l'attività ha generato **€ {drenaggio_totale:,.2f}** di cassa netta.")
+    with badge_col1:
+        if mesi_autonomia >= 2.0:
+            colore_aut = "#15803D"
+            stato_aut = "🟢 SICURA"
+        elif 1.0 <= mesi_autonomia < 2.0:
+            colore_aut = "#A16207"
+            stato_aut = "🟡 DA MONITORARE"
+        else:
+            colore_aut = "#B91C1C"
+            stato_aut = "🔴 CRITICA"
+            
+        st.markdown(f"""
+            <div style='background-color:#F8FAFC; padding:12px; border-radius:8px; border:1px solid #E2E8F0; border-left:5px solid {colore_aut};'>
+                <p style='color:#64748B; font-size:11px; font-weight:700; text-transform:uppercase; margin:0;'>🛡️ Autonomia Costi Fissi Struttura</p>
+                <h3 style='color:{colore_aut}; margin:4px 0; font-size:18px;'>{mesi_autonomia:.1f} Mesi ({stato_aut})</h3>
+                <p style='color:#475569; font-size:11px; margin:0;'>Copertura delle spese fisse con la liquidità attuale in banca.</p>
+            </div>
+        """, unsafe_allow_html=True)
+        
+    with badge_col2:
+        if incidenza_acquisti_pct <= 65.0:
+            colore_term = "#15803D"
+            stato_term = "🟢 EQUILIBRATO"
+        elif 65.0 < incidenza_acquisti_pct <= 75.0:
+            colore_term = "#A16207"
+            stato_term = "🟡 MAGAZZINO IN CRESCITA"
+        else:
+            colore_term = "#B91C1C"
+            stato_term = "🔴 SOVRA-APPROVVIGIONAMENTO CRITICO"
+            
+        st.markdown(f"""
+            <div style='background-color:#F8FAFC; padding:12px; border-radius:8px; border:1px solid #E2E8F0; border-left:5px solid {colore_term};'>
+                <p style='color:#64748B; font-size:11px; font-weight:700; text-transform:uppercase; margin:0;'>🌡️ Termometro Generale Acquisti Componenti</p>
+                <h3 style='color:{colore_term}; margin:4px 0; font-size:18px;'>{incidenza_acquisti_pct:.1f}% ({stato_term})</h3>
+                <p style='color:#475569; font-size:11px; margin:0;'>Impatto totale delle scadenze fornitori sul fatturato cumulativo generato.</p>
+            </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # SCHERMATA A SCOMPARSA (IL TUO CLIC DI DETTAGLIO)
+    with st.expander("🔍 Clicca qui per vedere il dettaglio dei mesi in cui la cassa va sotto"):
+        condizioni = [
+            (df_cashflow['Flusso Cassa Netto'] < 0) & (df_cashflow['Costi Variabili'] > df_cashflow['Fatturato'] * 0.50),
+            (df_cashflow['Flusso Cassa Netto'] < 0),
+            (df_cashflow['Flusso Cassa Netto'] >= 0)
+        ]
+        scelte = [
+            "⚠️ CRITICO: Sovra-approvvigionamento Merci (Acquisti alti rispetto al venduto)",
+            "🚨 DEFICIT CASSA: Le uscite del mese superano gli incassi",
+            "🟢 CASSA ATTIVA: Il mese ha generato liquidità netta"
+        ]
+        df_cashflow['Stato Liquidità'] = np.select(condizioni, scelte, default="OK")
+        
+        df_cf_vis = df_cashflow[['Mese', 'Fatturato', 'Costi Variabili', 'Costi Fissi (Fornitori)', 'Uscite Totali Mese', 'Flusso Cassa Netto', 'Stato Liquidità']]
+        
+        st.dataframe(
+            df_cf_vis,
+            column_config={
+                "Mese": st.column_config.TextColumn("Mese"),
+                "Fatturato": st.column_config.NumberColumn("Incassi (Fatturato) (€)", format="€ %,.2f"),
+                "Costi Variabili": st.column_config.NumberColumn("Scadenze Fornitori Merci (€)", format="€ %,.2f"),
+                "Costi Fissi (Fornitori)": st.column_config.NumberColumn("Spese Fisse Struttura (€)", format="€ %,.2f"),
+                "Uscite Totali Mese": st.column_config.NumberColumn("Uscite Totali (€)", format="€ %,.2f"),
+                "Flusso Cassa Netto": st.column_config.NumberColumn("Cassa Netta Mese (€)", format="€ %,.2f"),
+                "Stato Liquidità": st.column_config.TextColumn("Diagnosi Diagnostica Avanzata")
+            },
+            hide_index=True, use_container_width=True
+        )
+        
+        drenaggio_totale = df_cashflow['Flusso Cassa Netto'].sum()
+        if drenaggio_totale < 0:
+            st.error(f"⚠️ **Riepilogo Flusso di Cassa Cumulativo:** Da inizio anno l'attività ha drenato **€ {abs(drenaggio_totale):,.2f}** di liquidità. Gli acquisti anticipati di componenti si trovano attualmente immobilizzati nel Magazzino come capitale dormiente.")
+        else:
+            st.success(f"✅ **Riepilogo Flusso di Cassa Cumulativo:** Da inizio anno l'attività ha generato **€ {drenaggio_totale:,.2f}** di cassa netta.")
 else:
     st.info("📥 In attesa di dati storici per l'analisi del flusso di cassa.")
 
