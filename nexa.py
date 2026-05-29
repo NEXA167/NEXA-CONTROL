@@ -276,6 +276,7 @@ with header_col3:
             <h4 style='color:{colore_ebitda}; margin:2px 0; font-size:15px;'>€ {ebitda_stimato:,.2f}</h4>
         </div>
     """, unsafe_allow_html=True)
+    st.markdown("<br><br>", unsafe_allow_html=True)
 # --- 8. DISTRIBUZIONE GRAFICI ---
 col_p1, col_p2, col_p3 = st.columns(3)
 
@@ -312,7 +313,7 @@ with col_p2:
     ))
     fig_mag.update_layout(margin=dict(l=5, r=5, t=5, b=5), height=140, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
     st.plotly_chart(fig_mag, use_container_width=True, key="mag_v51_final")
-    st.markdown("<p style='text-align:center; color:#64748B; font-size:12px; font-weight:600; margin-top:-20px;'>Capitale Dormiente Attuale</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; color:#64748B; font-size:12px; font-weight:600; margin-top:10px;'>Capitale Dormiente Attuale</p>", unsafe_allow_html=True)
 
 with col_p3:
     st.markdown("<div class='titolo-grafico-libero'>3. Radar Cassa & Allerta Predittiva</div>", unsafe_allow_html=True)
