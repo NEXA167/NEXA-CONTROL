@@ -16,6 +16,17 @@ def esegui_query(query, params=(), fetch="none"):
     conn.close()
     return risultato # CORRETTO QUI: Ritorno pulito senza errori di sintassi
 
+# Righe di manutenzione per aggiornare il database esistente
+try:
+    esegui_query("ALTER TABLE dati_mensili ADD COLUMN scadenze_attive REAL DEFAULT 0.0;")
+except:
+    pass
+
+try:
+    esegui_query("ALTER TABLE dati_mensili ADD COLUMN rateizzazioni_extra REAL DEFAULT 0.0;")
+except:
+    pass
+
 # Inizializzazione tabelle aziendali
 esegui_query("CREATE TABLE IF NOT EXISTS utenti (username TEXT PRIMARY KEY, password TEXT, azienda TEXT)")
 esegui_query("""
@@ -180,11 +191,10 @@ def mostra_maschera_inserimento():
         st.markdown("<p class='label-maschera'>🏛️ Rateizzazioni Extra (€)</p>", unsafe_allow_html=True)
         rateizzazioni_val = st.number_input("rateizzazioni_n_final", min_value=0.0, value=0.0, step=500.0, label_visibility="collapsed")
     
-    st.markdown("---")
     if st.button("SALVA E RICALCOLA LOGICHE", use_container_width=True):
         id_chiave = f"{username}_{mese_scelto}"
         esegui_query("""
-            INSERT OR REPLACE INTO dati_mensili (id, username, mese, fatturato, margine, cassa, costi_variabili, costs_fissi, mutui_leasing, iva_contributi, magazzino, scadenze_attive, rateizzazioni_extra)
+            INSERT OR REPLACE INTO dati_mensili (id, username, mese, fatturato, margine, cassa, costi_variabili, costi_fissi, mutui_leasing, iva_contributi, magazzino, scadenze_attive, rateizzazioni_extra)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (id_chiave, username, mese_scelto, f_val, m_val, banca_val, cv_val, cf_val, ml_val, iva_val, mag_val, scadenze_val, rateizzazioni_val))
         st.rerun()
