@@ -366,7 +366,7 @@ if not df_attivi.empty:
     df_cashflow['Uscite Totali Mese'] = df_cashflow['Costi Variabili'] + df_cashflow['Costi Fissi (Fornitori)'] + df_cashflow['Mutui e Leasing']
     df_cashflow['Flusso Cassa Netto'] = df_cashflow['Fatturato'] - df_cashflow['Uscite Totali Mese']
     
-    # Calcolo Opzione B: Cassa Netta Generata da inizio anno + Finanziamenti Extra Inseriti
+    # Ricalcolo dinamico Opzione B: Flusso cumulato + Finanziamenti Extra
     cassa_generata_totale = df_cashflow['Flusso Cassa Netto'].sum()
     finanziamenti_ricevuti_totale = df_cashflow['finanziamenti_extra'].sum() if 'finanziamenti_extra' in df_cashflow.columns else 0.0
     cassa_disponibile_calcolata = cassa_generata_totale + finanziamenti_ricevuti_totale
@@ -378,7 +378,7 @@ if not df_attivi.empty:
     tot_fatturato = df_cashflow['Fatturato'].sum()
     incidenza_acquisti_pct = (tot_acquisti / tot_fatturato * 100) if tot_fatturato > 0 else 0.0
 
-    # Badge Superiori
+    # Generazione dei due Badge Strategici superiori
     badge_col1, badge_col2 = st.columns(2)
     with badge_col1:
         if mesi_autonomia >= 2.0:
