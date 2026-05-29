@@ -266,7 +266,7 @@ with col_p1:
                 'threshold': {'line': {'color': "red", 'width': 3}, 'thickness': 0.75, 'value': max(punto_pareggio_medio, 0.1)}
             }
         ))
-        fig_gauge.update_layout(margin=dict(l=5, r=5, t=5, b=5), height=180, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
+        fig_gauge.update_layout(margin=dict(l=5, r=5, t=30, b=5), height=200, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
         st.plotly_chart(fig_gauge, use_container_width=True, key="gauge_v51_final")
     else:
         st.info("📥 Inserisci i dati mensili per attivare il tachimetro.")
