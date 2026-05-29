@@ -200,18 +200,40 @@ def mostra_maschera_inserimento():
         st.rerun()
 
 # --- 7. BARRA SUPERIORE ---
-header_col1, header_col2, header_col3 = st.columns([2, 1, 1])
+header_col1, header_col2, header_col3 = st.columns([1.8, 1.1, 1.1])
 with header_col1:
-    st.markdown(f"<h1 style='color: #0F172A; margin:0; font-size: 28px;'>NEXA PLATFORM — {st.session_state.azienda_attuale}</h1>", unsafe_allow_html=True)
-    st.markdown(f"<p style='color: #64748B; font-size: 14px; margin:0;'>Account Cloud Attivo: <b>{username}</b></p>", unsafe_allow_html=True)
+    st.markdown(f"<h1 style='color: #0F172A; margin:0; font-size: 26px;'>NEXA PLATFORM — {st.session_state.azienda_attuale}</h1>", unsafe_allow_html=True)
+    st.markdown(f"<p style='color: #64748B; font-size: 13px; margin:0;'>Account Cloud Attivo: <b>{username}</b></p>", unsafe_allow_html=True)
+
 with header_col2:
     if st.button("➕ INSERISCI DATI MENSILI", use_container_width=True):
         mostra_maschera_inserimento()
+    # Iniezione Fatturato Sicurezza sotto al bottone
+    st.markdown(f"""
+        <div style='background-color:#FFFFFF; padding:8px; border-radius:6px; border:1px solid #E2E8F0; text-align:center; margin-top:5px; box-shadow:0 1px 2px rgba(0,0,0,0.02);'>
+            <p style='color:#64748B; font-size:10px; font-weight:700; text-transform:uppercase; margin:0;'>🎯 BEP Sicurezza</p>
+            <h4 style='color:#0F172A; margin:2px 0; font-size:15px;'>€ {bep_mensile_sicurezza:,.2f}</h4>
+        </div>
+    """, unsafe_allow_html=True)
+
 with header_col3:
     if st.button("🚪 LOGOUT", use_container_width=True):
         st.session_state.autenticato = False
         st.session_state.utente_attuale = ""
         st.rerun()
+    # Iniezione EBITDA e DSCR sotto al logout
+    colore_ebitda = "#15803D" if ebitda_stimato >= 0 else "#B91C1C"
+    if 'scadenze_attive' in df_attivi.columns and (ultime_scadenze > 0 or ultime_rateizzazioni > 0):
+        txt_dscr = f"DSCR: {dscr_calcolato:.2f}"
+    else:
+        txt_dscr = "DSCR: --"
+        
+    st.markdown(f"""
+        <div style='background-color:#FFFFFF; padding:8px; border-radius:6px; border:1px solid #E2E8F0; text-align:center; margin-top:5px; box-shadow:0 1px 2px rgba(0,0,0,0.02);'>
+            <p style='color:#64748B; font-size:10px; font-weight:700; text-transform:uppercase; margin:0;'>📊 EBITDA | {txt_dscr}</p>
+            <h4 style='color:{colore_ebitda}; margin:2px 0; font-size:15px;'>€ {ebitda_stimato:,.2f}</h4>
+        </div>
+    """, unsafe_allow_html=True)
 
 st.markdown("---")
 
@@ -371,43 +393,6 @@ if not df_attivi.empty:
         st.success(f"✅ **Riepilogo Flusso di Cassa Cumulativo:** Da inizio anno l'attività ha generato **€ {drenaggio_totale:,.2f}** di cassa netta.")
 else:
     st.info("📥 In attesa di dati storici per l'analisi del flusso di cassa.")
-# --- 9. KPI STRATEGICI ---
-st.markdown("<br>", unsafe_allow_html=True)
-st.subheader("📊 Parametri Direzionali di Controllo")
-kpi_col1, kpi_col2 = st.columns(2)
-
-with kpi_col1:
-    st.markdown(f"""
-        <div class='kpi-mini-box'>
-            <p style='color:#64748B; font-size:13px; font-weight:700; text-transform:uppercase; margin:0;'>🎯 Fatturato di Sicurezza Mensile</p>
-            <h2 style='color:#0F172A; font-size:28px; margin:5px 0;'>€ {bep_mensile_sicurezza:,.2f}</h2>
-            <p style='color:#475569; font-size:12px; margin:0;'>Traguardo minimo per coprire le Spese Fisse di Struttura.</p>
-        </div>
-    """, unsafe_allow_html=True)
-
-with kpi_col2:
-    colore_ebitda = "#15803D" if ebitda_stimato >= 0 else "#B91C1C"
-    
-    # Determiniamo lo stato visivo del DSCR predittivo
-    if ultime_scadenze > 0 or ultime_rateizzazioni > 0:
-        if dscr_calcolato >= 1.0:
-            html_dscr = f"<span style='color:#15803D; font-weight:bold;'>Sostenibile ({dscr_calcolato:.2f}) 🟢</span>"
-        elif 0.0 < dscr_calcolato < 1.0:
-            html_dscr = f"<span style='color:#A16207; font-weight:bold;'>Attenzione ({dscr_calcolato:.2f}) 🟡</span>"
-        else:
-            html_dscr = f"<span style='color:#B91C1C; font-weight:bold;'>Critico ({dscr_calcolato:.2f}) 🔴</span>"
-    else:
-        html_dscr = "<span style='color:#64748B; font-style:italic;'>In attesa di dati previsionali</span>"
-
-    st.markdown(f"""
-        <div class='kpi-mini-box'>
-            <p style='color:#64748B; font-size:13px; font-weight:700; text-transform:uppercase; margin:0;'>📊 EBITDA Mensile (Margine Operativo)</p>
-            <h2 style='color:{colore_ebitda}; font-size:26px; margin:2px 0;'>€ {ebitda_stimato:,.2f}</h2>
-            <hr style='margin:8px 0; border:0; border-top:1px dashed #CBD5E1;'>
-            <p style='color:#1E293B; font-size:13px; font-weight:700; margin:0;'>🔍 INDICE DSCR PREVISIONALE (30GG):</p>
-            <p style='font-size:16px; margin:3px 0;'>{html_dscr}</p>
-        </div>
-    """, unsafe_allow_html=True)
 
 # --- 10. TABELLA REGISTRO ---
 st.markdown("---")
