@@ -202,19 +202,15 @@ def mostra_maschera_inserimento():
         st.markdown("<p class='label-maschera'>🏛️ Rateizzazioni Extra (€)</p>", unsafe_allow_html=True)
         rateizzazioni_val = st.number_input("rateizzazioni_n_final", min_value=0.0, value=float(dati_attuali["rateizzazioni_extra"]), step=500.0, label_visibility="collapsed")
         st.markdown("<p class='label-maschera'>🏦 Finanziamenti / Liquidità Extra (€)</p>", unsafe_allow_html=True)
-        fin_val = st.number_input("fin_n_final", min_value=0.0, value=float(dati_attuali["finanziamenti_extra"] if "finanziamenti_extra" in dati_attuali else 0.0), step=5000.0, label_visibility="collapsed")
+        fin_val = st.number_input("fin_n_final", min_value=0.0, value=float(dati_attuali["finanziamenti_extra"]), step=5000.0, label_visibility="collapsed")
     
     if st.button("SALVA E RICALCOLA LOGICHE", use_container_width=True):
         id_chiave = f"{username}_{mese_scelto}"
         esegui_query("""
-            INSERT OR REPLACE INTO dati_mensili (id, username, mese, fatturato, margine, cassa, costi_variabili, costs_fissi, mutui_leasing, iva_contributi, magazzino, scadenze_attive, rateizzazioni_extra, finanziamenti_extra)
+            INSERT OR REPLACE INTO dati_mensili (id, username, mese, fatturato, margine, cassa, costi_variabili, costi_fissi, mutui_leasing, iva_contributi, magazzino, scadenze_attive, rateizzazioni_extra, finanziamenti_extra)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """.replace("costs_fissi", "costi_fissi"), (id_chiave, username, mese_scelto, f_val, m_val, banca_val, cv_val, cf_val, ml_val, iva_val, mag_val, scadenze_val, rateizzazioni_val, fin_val))
+        """, (id_chiave, username, mese_scelto, f_val, m_val, banca_val, cv_val, cf_val, ml_val, iva_val, mag_val, scadenze_val, rateizzazioni_val, fin_val))
         st.rerun()
-
-
-
-st.markdown("---")
 
 # Calcoli matematici e Previsionali (Aggiornati con Allert 30gg)
 costi_fissi_totali = db_utente['Costi Fissi (Fornitori)'] + db_utente['Mutui e Leasing']
@@ -370,11 +366,9 @@ if not df_attivi.empty:
     df_cashflow['Uscite Totali Mese'] = df_cashflow['Costi Variabili'] + df_cashflow['Costi Fissi (Fornitori)'] + df_cashflow['Mutui e Leasing']
     df_cashflow['Flusso Cassa Netto'] = df_cashflow['Fatturato'] - df_cashflow['Uscite Totali Mese']
     
-    # Calcolo della cassa virtuale cumulativa generata dall'attività + finanziamenti esterni accumulati
+    # Calcolo Opzione B: Cassa Netta Generata da inizio anno + Finanziamenti Extra Inseriti
     cassa_generata_totale = df_cashflow['Flusso Cassa Netto'].sum()
     finanziamenti_ricevuti_totale = df_cashflow['finanziamenti_extra'].sum() if 'finanziamenti_extra' in df_cashflow.columns else 0.0
-    
-    # Cassa reale calcolata
     cassa_disponibile_calcolata = cassa_generata_totale + finanziamenti_ricevuti_totale
     
     mesi_autonomia = cassa_disponibile_calcolata / ultimo_costo_fisso if ultimo_costo_fisso > 0 else 0.0
@@ -384,9 +378,8 @@ if not df_attivi.empty:
     tot_fatturato = df_cashflow['Fatturato'].sum()
     incidenza_acquisti_pct = (tot_acquisti / tot_fatturato * 100) if tot_fatturato > 0 else 0.0
 
-    # Generazione dei due Badge Strategici superiori
+    # Badge Superiori
     badge_col1, badge_col2 = st.columns(2)
-    
     with badge_col1:
         if mesi_autonomia >= 2.0:
             colore_aut = "#15803D"
@@ -426,7 +419,6 @@ if not df_attivi.empty:
         """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-
     # Contenitore Collassabile (Espandibile) unico per i dettagli
     with st.expander("🔍 Clicca qui per espandere il dettaglio mensile e l'analisi sovra-approvvigionamento"):
         condizioni = [
