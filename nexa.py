@@ -27,14 +27,28 @@ try:
 except:
     pass
 
-# Inizializzazione tabelle aziendali
+# Righe di manutenzione per aggiornare il database esistente (NON TOCCARE LE VECCHIE)
+try:
+    esegui_query("ALTER TABLE dati_mensili ADD COLUMN scadenze_attive REAL DEFAULT 0.0;")
+except: pass
+
+try:
+    esegui_query("ALTER TABLE dati_mensili ADD COLUMN rateizzazioni_extra REAL DEFAULT 0.0;")
+except: pass
+
+# AGGIUNGI QUESTA NUOVA RIGA DI MANUTENZIONE QUI SOTTO:
+try:
+    esegui_query("ALTER TABLE dati_mensili ADD COLUMN finanziamenti_extra REAL DEFAULT 0.0;")
+except: pass
+
+# Inizializzazione tabelle aziendali (SOSTITUISCI CON QUESTA NUOVA STRUTTURA)
 esegui_query("CREATE TABLE IF NOT EXISTS utenti (username TEXT PRIMARY KEY, password TEXT, azienda TEXT)")
 esegui_query("""
     CREATE TABLE IF NOT EXISTS dati_mensili (
         id TEXT PRIMARY KEY, username TEXT, mese TEXT, fatturato REAL,
         margine REAL, cassa REAL, costi_variabili REAL, costi_fissi REAL,
         mutui_leasing REAL, iva_contributi REAL, magazzino REAL,
-        scadenze_attive REAL, rateizzazioni_extra REAL
+        scadenze_attive REAL, rateizzazioni_extra REAL, finanziamenti_extra REAL
     )
 """)
 esegui_query("INSERT OR IGNORE INTO utenti VALUES ('arteq', 'bloom2026', 'Arteq S.r.l.')")
@@ -121,12 +135,13 @@ st.markdown("""
 username = st.session_state.utente_attuale
 
 def carica_database_utente(user):
-    righe = esegui_query("SELECT mese, fatturato, margine, cassa, costi_variabili, costi_fissi, mutui_leasing, iva_contributi, magazzino FROM dati_mensili WHERE username = ?", (user,), fetch="all")
+    righe = esegui_query("SELECT mese, fatturato, margine, cassa, costi_variabili, costi_fissi, mutui_leasing, iva_contributi, magazzino, scadenze_attive, rateizzazioni_extra, finanziamenti_extra FROM dati_mensili WHERE username = ?", (user,), fetch="all")
     mesi = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"]
     df = pd.DataFrame({
         "Mese": mesi, "Fatturato": [0.0]*12, "Margine %": [0.25]*12, "Saldo Banca (Cassa)": [0.0]*12,
         "Costi Variabili": [0.0]*12, "Costi Fissi (Fornitori)": [0.0]*12, "Mutui e Leasing": [0.0]*12,
-        "Debiti IVA e Contributi": [0.0]*12, "Valore Magazzino": [0.0]*12
+        "Debiti IVA e Contributi": [0.0]*12, "Valore Magazzino": [0.0]*12,
+        "scadenze_attive": [0.0]*12, "rateizzazioni_extra": [0.0]*12, "finanziamenti_extra": [0.0]*12
     })
     for r in righe:
         idx = df[df["Mese"] == r[0]].index[0]
@@ -138,6 +153,9 @@ def carica_database_utente(user):
         df.at[idx, "Mutui e Leasing"] = r[6]
         df.at[idx, "Debiti IVA e Contributi"] = r[7]
         df.at[idx, "Valore Magazzino"] = r[8]
+        if len(r) > 9: df.at[idx, "scadenze_attive"] = r[9]
+        if len(r) > 10: df.at[idx, "rateizzazioni_extra"] = r[10]
+        if len(r) > 11: df.at[idx, "finanziamenti_extra"] = r[11]
     return df
 
 db_utente = carica_database_utente(username)
@@ -150,14 +168,12 @@ def mostra_maschera_inserimento():
     dati_attuali = db_utente[db_utente["Mese"] == mese_scelto].iloc[0]
     
     st.markdown("---")
-    # 4 colonne parallele per non dover mai scorrere la pagina verso il basso
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
         st.markdown("#### 🚀 Prestazioni")
         st.markdown("<p class='label-maschera'>Fatturato Imponibile (€)</p>", unsafe_allow_html=True)
         f_val = st.number_input("f_n_new", min_value=0.0, value=float(dati_attuali["Fatturato"]), step=5000.0, label_visibility="collapsed")
-        
         st.markdown("<p class='label-maschera'>Margine Stimato (es. 0.25)</p>", unsafe_allow_html=True)
         m_val = st.number_input("m_n_new", min_value=0.0, max_value=1.0, value=float(dati_attuali["Margine %"]), format="%.2f", step=0.01, label_visibility="collapsed")
 
@@ -165,7 +181,6 @@ def mostra_maschera_inserimento():
         st.markdown("#### 💰 Cassa e Merci")
         st.markdown("<p class='label-maschera'>Saldo Banca (Cassa) (€)</p>", unsafe_allow_html=True)
         banca_val = st.number_input("banca_n_new", min_value=0.0, value=float(dati_attuali["Saldo Banca (Cassa)"]), step=5000.0, label_visibility="collapsed")
-        
         st.markdown("<p class='label-maschera'>Valore Stima Magazzino (€)</p>", unsafe_allow_html=True)
         mag_val = st.number_input("mag_n_new", min_value=0.0, value=float(dati_attuali["Valore Magazzino"]), step=1000.0, label_visibility="collapsed")
 
@@ -173,10 +188,8 @@ def mostra_maschera_inserimento():
         st.markdown("#### 📉 Struttura Costi")
         st.markdown("<p class='label-maschera'>Fornitori Componenti / Produzione (€)</p>", unsafe_allow_html=True)
         cv_val = st.number_input("cv_n_new", min_value=0.0, value=float(dati_attuali["Costi Variabili"]), step=5000.0, label_visibility="collapsed")
-        
         st.markdown("<p class='label-maschera'>Spese Fisse Struttura (Affitti/Servizi) (€)</p>", unsafe_allow_html=True)
         cf_val = st.number_input("cf_n_new", min_value=0.0, value=float(dati_attuali["Costi Fissi (Fornitori)"]), step=1000.0, label_visibility="collapsed")
-        
         st.markdown("<p class='label-maschera'>Uscite Mutui e Leasing (€)</p>", unsafe_allow_html=True)
         ml_val = st.number_input("ml_n_new", min_value=0.0, value=float(dati_attuali["Mutui e Leasing"]), step=500.0, label_visibility="collapsed")
 
@@ -184,19 +197,19 @@ def mostra_maschera_inserimento():
         st.markdown("#### 🏛️ Fisco e Previsioni")
         st.markdown("<p class='label-maschera'>Debiti IVA e Contributi (€)</p>", unsafe_allow_html=True)
         iva_val = st.number_input("iva_n_new", min_value=0.0, value=float(dati_attuali["Debiti IVA e Contributi"]), step=1000.0, label_visibility="collapsed")
-        
         st.markdown("<p class='label-maschera'>🔮 Incassi Mese Prossimo (€)</p>", unsafe_allow_html=True)
-        scadenze_val = st.number_input("scadenze_n_final", min_value=0.0, value=0.0, step=1000.0, label_visibility="collapsed")
-        
+        scadenze_val = st.number_input("scadenze_n_final", min_value=0.0, value=float(dati_attuali["scadenze_attive"]), step=1000.0, label_visibility="collapsed")
         st.markdown("<p class='label-maschera'>🏛️ Rateizzazioni Extra (€)</p>", unsafe_allow_html=True)
-        rateizzazioni_val = st.number_input("rateizzazioni_n_final", min_value=0.0, value=0.0, step=500.0, label_visibility="collapsed")
+        rateizzazioni_val = st.number_input("rateizzazioni_n_final", min_value=0.0, value=float(dati_attuali["rateizzazioni_extra"]), step=500.0, label_visibility="collapsed")
+        st.markdown("<p class='label-maschera'>🏦 Finanziamenti / Liquidità Extra (€)</p>", unsafe_allow_html=True)
+        fin_val = st.number_input("fin_n_final", min_value=0.0, value=float(dati_attuali["finanziamenti_extra"] if "finanziamenti_extra" in dati_attuali else 0.0), step=5000.0, label_visibility="collapsed")
     
     if st.button("SALVA E RICALCOLA LOGICHE", use_container_width=True):
         id_chiave = f"{username}_{mese_scelto}"
         esegui_query("""
-            INSERT OR REPLACE INTO dati_mensili (id, username, mese, fatturato, margine, cassa, costi_variabili, costi_fissi, mutui_leasing, iva_contributi, magazzino, scadenze_attive, rateizzazioni_extra)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (id_chiave, username, mese_scelto, f_val, m_val, banca_val, cv_val, cf_val, ml_val, iva_val, mag_val, scadenze_val, rateizzazioni_val))
+            INSERT OR REPLACE INTO dati_mensili (id, username, mese, fatturato, margine, cassa, costi_variabili, costs_fissi, mutui_leasing, iva_contributi, magazzino, scadenze_attive, rateizzazioni_extra, finanziamenti_extra)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """.replace("costs_fissi", "costi_fissi"), (id_chiave, username, mese_scelto, f_val, m_val, banca_val, cv_val, cf_val, ml_val, iva_val, mag_val, scadenze_val, rateizzazioni_val, fin_val))
         st.rerun()
 
 
@@ -357,7 +370,16 @@ if not df_attivi.empty:
     df_cashflow['Uscite Totali Mese'] = df_cashflow['Costi Variabili'] + df_cashflow['Costi Fissi (Fornitori)'] + df_cashflow['Mutui e Leasing']
     df_cashflow['Flusso Cassa Netto'] = df_cashflow['Fatturato'] - df_cashflow['Uscite Totali Mese']
     
-    mesi_autonomia = ultima_cassa / ultimo_costo_fisso if ultimo_costo_fisso > 0 else 0.0
+    # Calcolo della cassa virtuale cumulativa generata dall'attività + finanziamenti esterni accumulati
+    cassa_generata_totale = df_cashflow['Flusso Cassa Netto'].sum()
+    finanziamenti_ricevuti_totale = df_cashflow['finanziamenti_extra'].sum() if 'finanziamenti_extra' in df_cashflow.columns else 0.0
+    
+    # Cassa reale calcolata
+    cassa_disponibile_calcolata = cassa_generata_totale + finanziamenti_ricevuti_totale
+    
+    mesi_autonomia = cassa_disponibile_calcolata / ultimo_costo_fisso if ultimo_costo_fisso > 0 else 0.0
+    if mesi_autonomia < 0: mesi_autonomia = 0.0
+
     tot_acquisti = df_cashflow['Costi Variabili'].sum()
     tot_fatturato = df_cashflow['Fatturato'].sum()
     incidenza_acquisti_pct = (tot_acquisti / tot_fatturato * 100) if tot_fatturato > 0 else 0.0
@@ -378,9 +400,9 @@ if not df_attivi.empty:
             
         st.markdown(f"""
             <div style='background-color:#F8FAFC; padding:12px; border-radius:8px; border:1px solid #E2E8F0; border-left:5px solid {colore_aut};'>
-                <p style='color:#64748B; font-size:11px; font-weight:700; text-transform:uppercase; margin:0;'>🛡️ Autonomia Costi Fissi Struttura</p>
+                <p style='color:#64748B; font-size:11px; font-weight:700; text-transform:uppercase; margin:0;'>🛡️ Autonomia Struttura (Cassa Netta + Finanziamenti)</p>
                 <h3 style='color:{colore_aut}; margin:4px 0; font-size:18px;'>{mesi_autonomia:.1f} Mesi ({stato_aut})</h3>
-                <p style='color:#475569; font-size:11px; margin:0;'>Copertura delle spese fisse con la liquidità attuale in banca.</p>
+                <p style='color:#475569; font-size:11px; margin:0;'>Autonomia stimata integrando la liquidità generata e i crediti esterni accreditati.</p>
             </div>
         """, unsafe_allow_html=True)
         
