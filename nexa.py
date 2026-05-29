@@ -205,7 +205,7 @@ with header_col3:
 
 st.markdown("---")
 
-# Calcoli matematici
+# Calcoli matematici e Previsionali (Aggiornati con Allert 30gg)
 costi_fissi_totali = db_utente['Costi Fissi (Fornitori)'] + db_utente['Mutui e Leasing']
 db_utente['Punto di Pareggio'] = np.where(db_utente['Margine %'] > 0, costi_fissi_totali / db_utente['Margine %'], 0.0)
 
@@ -220,6 +220,15 @@ ultimo_margine_pct = df_attivi['Margine %'].iloc[-1] if not df_attivi.empty else
 ultimo_costo_fisso = df_attivi['Costi Fissi (Fornitori)'].iloc[-1] if not df_attivi.empty else 0.0
 ultimo_leasing = df_attivi['Mutui e Leasing'].iloc[-1] if not df_attivi.empty else 0.0
 ultimo_fatturato = df_attivi['Fatturato'].iloc[-1] if not df_attivi.empty else 0.0
+ultima_cassa = df_attivi['Saldo Banca (Cassa)'].iloc[-1] if not df_attivi.empty else 0.0
+
+# Recuperiamo i dati predittivi inseriti da Monica
+ultime_scadenze = df_attivi['scadenze_attive'].iloc[-1] if 'scadenze_attive' in df_attivi.columns and not df_attivi.empty else 0.0
+ultime_rateizzazioni = df_attivi['rateizzazioni_extra'].iloc[-1] if 'rateizzazioni_extra' in df_attivi.columns and not df_attivi.empty else 0.0
+
+# FORMULA PREDITTIVA CASSA A 30 GIORNI
+costi_prossimo_mese = ultimo_costo_fisso + ultimo_leasing + ultime_rateizzazioni
+cassa_previsionale = ultima_cassa + ultime_scadenze - costi_prossimo_mese
 
 bep_mensile_sicurezza = (ultimo_costo_fisso + ultimo_leasing) / ultimo_margine_pct if ultimo_margine_pct > 0 else 0.0
 ebitda_stimato = (ultimo_fatturato * ultimo_margine_pct) - (ultimo_costo_fisso + ultimo_leasing)
