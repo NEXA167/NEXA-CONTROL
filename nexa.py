@@ -302,7 +302,7 @@ with col_p1:
             }
         ))
         fig_gauge.update_layout(margin=dict(l=5, r=5, t=30, b=5), height=200, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
-        st.plotly_chart(fig_gauge, use_container_width=True, key="gauge_v55_clean")
+        st.plotly_chart(fig_gauge, use_container_width=True, key="gauge_v58_final")
     else:
         st.info("📥 Inserisci i dati mensili per attivare il tachimetro.")
 
@@ -315,7 +315,7 @@ with col_p2:
         domain = {'x': [0, 1], 'y': [0, 1]}
     ))
     fig_mag.update_layout(margin=dict(l=5, r=5, t=5, b=5), height=140, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
-    st.plotly_chart(fig_mag, use_container_width=True, key="mag_v55_clean")
+    st.plotly_chart(fig_mag, use_container_width=True, key="mag_v58_final")
     st.markdown("<p style='text-align:center; color:#64748B; font-size:12px; font-weight:600; margin-top:10px;'>Capitale Dormiente Attuale</p>", unsafe_allow_html=True)
 
 with col_p3:
@@ -336,7 +336,7 @@ with col_p3:
             fig_line.add_trace(go.Scatter(x=mesi_attivi, y=df_attivi['Fatturato'], mode='lines+markers', name='Fatturato', line=dict(color='#1E88E5', width=3)))
             fig_line.add_trace(go.Scatter(x=mesi_attivi, y=df_attivi['Punto di Pareggio'], mode='lines', name='Pareggio', line=dict(color='red', dash='dash')))
             fig_line.update_layout(margin=dict(l=5, r=5, t=5, b=5), height=140, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', showlegend=False)
-            st.plotly_chart(fig_line, use_container_width=True, key="line_v55_clean")
+            st.plotly_chart(fig_line, use_container_width=True, key="line_v58_final")
             
             st.markdown(f"<p style='margin:0; font-size:13px; font-weight:600;'>Incidenza Costi Fissi Struttura: {incidenza_costi_pct:.1f}%</p>", unsafe_allow_html=True)
             if incidenza_costi_pct > 50.0 or media_fatturato < punto_pareggio_medio:
@@ -357,102 +357,6 @@ if not df_attivi.empty:
     df_cashflow['Uscite Totali Mese'] = df_cashflow['Costi Variabili'] + df_cashflow['Costi Fissi (Fornitori)'] + df_cashflow['Mutui e Leasing']
     df_cashflow['Flusso Cassa Netto'] = df_cashflow['Fatturato'] - df_cashflow['Uscite Totali Mese']
     
-    mesi_autonomia = ultima_cassa / ultimo_costo_fisso if ultimo_costo_fisso > 0 else 0.0
-    tot_acquisti = df_cashflow['Costi Variabili'].sum()
-    tot_fatturato = df_cashflow['Fatturato'].sum()
-    incidenza_acquisti_pct = (tot_acquisti / tot_fatturato * 100) if tot_fatturato > 0 else 0.0
-
-    # Badge Superiori
-    badge_col1, badge_col2 = st.columns(2)
-    
-    with badge_col1:
-        if mesi_autonomia >= 2.0:
-            colore_aut = "#15803D"
-            stato_aut = "🟢 SICURA"
-        elif 1.0 <= mesi_autonomia < 2.0:
-            colore_aut = "#A16207"
-            stato_aut = "🟡 DA MONITORARE"
-        else:
-            colore_aut = "#B91C1C"
-            stato_aut = "🔴 CRITICA"
-            
-        st.markdown(f"""
-            <div style='background-color:#F8FAFC; padding:12px; border-radius:8px; border:1px solid #E2E8F0; border-left:5px solid {colore_aut};'>
-                <p style='color:#64748B; font-size:11px; font-weight:700; text-transform:uppercase; margin:0;'>🛡️ Autonomia Costi Fissi Struttura</p>
-                <h3 style='color:{colore_aut}; margin:4px 0; font-size:18px;'>{mesi_autonomia:.1f} Mesi ({stato_aut})</h3>
-                <p style='color:#475569; font-size:11px; margin:0;'>Copertura delle spese fisse con la liquidità attuale in banca.</p>
-            </div>
-        """, unsafe_allow_html=True)
-        
-    with badge_col2:
-        if incidenza_acquisti_pct <= 65.0:
-            colore_term = "#15803D"
-            stato_term = "🟢 EQUILIBRATO"
-        elif 65.0 < incidenza_acquisti_pct <= 75.0:
-            colore_term = "#A16207"
-            stato_term = "🟡 MAGAZZINO IN CRESCITA"
-        else:
-            colore_term = "#B91C1C"
-            stato_term = "🔴 SOVRA-APPROVVIGIONAMENTO CRITICO"
-            
-        st.markdown(f"""
-            <div style='background-color:#F8FAFC; padding:12px; border-radius:8px; border:1px solid #E2E8F0; border-left:5px solid {colore_term};'>
-                <p style='color:#64748B; font-size:11px; font-weight:700; text-transform:uppercase; margin:0;'>🌡️ Termometro Generale Acquisti Componenti</p>
-                <h3 style='color:{colore_term}; margin:4px 0; font-size:18px;'>{incidenza_acquisti_pct:.1f}% ({stato_term})</h3>
-                <p style='color:#475569; font-size:11px; margin:0;'>Impatto totale delle scadenze fornitori sul fatturato cumulativo generato.</p>
-            </div>
-        """, unsafe_allow_html=True)
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # Contenitore Collassabile (Espandibile) unico per i dettagli
-    with st.expander("🔍 Clicca qui per espandere il dettaglio mensile e l'analisi sovra-approvvigionamento"):
-        condizioni = [
-            (df_cashflow['Flusso Cassa Netto'] < 0) & (df_cashflow['Costi Variabili'] > df_cashflow['Fatturato'] * 0.50),
-            (df_cashflow['Flusso Cassa Netto'] < 0),
-            (df_cashflow['Flusso Cassa Netto'] >= 0)
-        ]
-        scelte = [
-            "⚠️ CRITICO: Sovra-approvvigionamento Merci (Acquisti alti rispetto al venduto)",
-            "🚨 DEFICIT CASSA: Le uscite del mese superano gli incassi",
-            "🟢 CASSA ATTIVA: Il mese ha generato liquidità netta"
-        ]
-        df_cashflow['Stato Liquidità'] = np.select(condizioni, scelte, default="OK")
-        
-        df_cf_vis = df_cashflow[['Mese', 'Fatturato', 'Costi Variabili', 'Costi Fissi (Fornitori)', 'Uscite Totali Mese', 'Flusso Cassa Netto', 'Stato Liquidità']]
-        
-        st.dataframe(
-            df_cf_vis,
-            column_config={
-                "Mese": st.column_config.TextColumn("Mese"),
-                "Fatturato": st.column_config.NumberColumn("Incassi (Fatturato) (€)", format="€ %,.2f"),
-                "Costi Variabili": st.column_config.NumberColumn("Scadenze Fornitori Merci (€)", format="€ %,.2f"),
-                "Costi Fissi (Fornitori)": st.column_config.NumberColumn("Spese Fisse Struttura (€)", format="€ %,.2f"),
-                "Uscite Totali Mese": st.column_config.NumberColumn("Uscite Totali (€)", format="€ %,.2f"),
-                "Flusso Cassa Netto": st.column_config.NumberColumn("Cassa Netta Mese (€)", format="€ %,.2f"),
-                "Stato Liquidità": st.column_config.TextColumn("Diagnosi Diagnostica Avanzata")
-            },
-            hide_index=True, use_container_width=True
-        )
-        
-        drenaggio_totale = df_cashflow['Flusso Cassa Netto'].sum()
-        if drenaggio_totale < 0:
-            st.error(f"⚠️ **Riepilogo Flusso di Cassa Cumulativo:** Da inizio anno l'attività ha drenato **€ {abs(drenaggio_totale):,.2f}** di liquidità. Gli acquisti anticipati di componenti si trovano attualmente immobilizzati nel Magazzino come capitale dormiente.")
-        else:
-            st.success(f"✅ **Riepilogo Flusso di Cassa Cumulativo:** Da inizio anno l'attività ha generato **€ {drenaggio_totale:,.2f}** di cassa netta.")
-else:
-    st.info("📥 In attesa di dati storici per l'analisi del flusso di cassa.")
-
-# --- 9. MONITORAGGIO FLUSSO DI CASSA REALE & ALLERTE PREDITTIVE ---
-st.markdown("---")
-st.markdown("### 💸 4. Monitoraggio Flusso di Cassa Reale & Allerte")
-
-if not df_attivi.empty:
-    df_cashflow = df_attivi.copy()
-    df_cashflow['Uscite Totali Mese'] = df_cashflow['Costi Variabili'] + df_cashflow['Costi Fissi (Fornitori)'] + df_cashflow['Mutui e Leasing']
-    df_cashflow['Flusso Cassa Netto'] = df_cashflow['Fatturato'] - df_cashflow['Uscite Totali Mese']
-    
-    # Calcolo parametri per indicatori visuali
     mesi_autonomia = ultima_cassa / ultimo_costo_fisso if ultimo_costo_fisso > 0 else 0.0
     tot_acquisti = df_cashflow['Costi Variabili'].sum()
     tot_fatturato = df_cashflow['Fatturato'].sum()
@@ -501,106 +405,8 @@ if not df_attivi.empty:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Contenitore Collassabile per la Trasparenza dei Mesi in Rosso
+    # Contenitore Collassabile (Espandibile) unico per i dettagli
     with st.expander("🔍 Clicca qui per espandere il dettaglio mensile e l'analisi sovra-approvvigionamento"):
-        condizioni = [
-            (df_cashflow['Flusso Cassa Netto'] < 0) & (df_cashflow['Costi Variabili'] > df_cashflow['Fatturato'] * 0.50),
-            (df_cashflow['Flusso Cassa Netto'] < 0),
-            (df_cashflow['Flusso Cassa Netto'] >= 0)
-        ]
-        scelte = [
-            "⚠️ CRITICO: Sovra-approvvigionamento Merci (Acquisti alti rispetto al venduto)",
-            "🚨 DEFICIT CASSA: Le uscite del mese superano gli incassi",
-            "🟢 CASSA ATTIVA: Il mese ha generato liquidità netta"
-        ]
-        df_cashflow['Stato Liquidità'] = np.select(condizioni, scelte, default="OK")
-        
-        df_cf_vis = df_cashflow[['Mese', 'Fatturato', 'Costi Variabili', 'Costi Fissi (Fornitori)', 'Uscite Totali Mese', 'Flusso Cassa Netto', 'Stato Liquidità']]
-        
-        st.dataframe(
-            df_cf_vis,
-            column_config={
-                "Mese": st.column_config.TextColumn("Mese"),
-                "Fatturato": st.column_config.NumberColumn("Incassi (Fatturato) (€)", format="€ %,.2f"),
-                "Costi Variabili": st.column_config.NumberColumn("Scadenze Fornitori Merci (€)", format="€ %,.2f"),
-                "Costi Fissi (Fornitori)": st.column_config.NumberColumn("Spese Fisse Struttura (€)", format="€ %,.2f"),
-                "Uscite Totali Mese": st.column_config.NumberColumn("Uscite Totali (€)", format="€ %,.2f"),
-                "Flusso Cassa Netto": st.column_config.NumberColumn("Cassa Netta Mese (€)", format="€ %,.2f"),
-                "Stato Liquidità": st.column_config.TextColumn("Diagnosi Diagnostica Avanzata")
-            },
-            hide_index=True, use_container_width=True
-        )
-        
-        drenaggio_totale = df_cashflow['Flusso Cassa Netto'].sum()
-        if drenaggio_totale < 0:
-            st.error(f"⚠️ **Riepilogo Flusso di Cassa Cumulativo:** Da inizio anno l'attività ha drenato **€ {abs(drenaggio_totale):,.2f}** di liquidità. Gli acquisti anticipati di componenti si trovano attualmente immobilizzati nel Magazzino come capitale dormiente.")
-        else:
-            st.success(f"✅ **Riepilogo Flusso di Cassa Cumulativo:** Da inizio anno l'attività ha generato **€ {drenaggio_totale:,.2f}** di cassa netta.")
-else:
-    st.info("📥 In attesa di dati storici per l'analisi del flusso di cassa.")
-
-# --- NUOVA SEZIONE: ANALISI FLUSSO DI CASSA REALE & ALERT SOVRA-APPROVVIGIONAMENTO ---
-st.markdown("---")
-st.markdown("### 💸 4. Monitoraggio Flusso di Cassa Reale & Allerte")
-
-if not df_attivi.empty:
-    df_cashflow = df_attivi.copy()
-    df_cashflow['Uscite Totali Mese'] = df_cashflow['Costi Variabili'] + df_cashflow['Costi Fissi (Fornitori)'] + df_cashflow['Mutui e Leasing']
-    df_cashflow['Flusso Cassa Netto'] = df_cashflow['Fatturato'] - df_cashflow['Uscite Totali Mese']
-    
-    # 1. CALCOLO BADGE: Autonomia Monetaria
-    mesi_autonomia = ultima_cassa / ultimo_costo_fisso if ultimo_costo_fisso > 0 else 0.0
-    
-    # 2. CALCOLO BADGE: Termometro Acquisti
-    tot_acquisti = df_cashflow['Costi Variabili'].sum()
-    tot_fatturato = df_cashflow['Fatturato'].sum()
-    incidenza_acquisti_pct = (tot_acquisti / tot_fatturato * 100) if tot_fatturato > 0 else 0.0
-
-    # DISEGNO DEI DUE INDICATORI VISUALI (BADGE)
-    badge_col1, badge_col2 = st.columns(2)
-    
-    with badge_col1:
-        if mesi_autonomia >= 2.0:
-            colore_aut = "#15803D"
-            stato_aut = "🟢 SICURA"
-        elif 1.0 <= mesi_autonomia < 2.0:
-            colore_aut = "#A16207"
-            stato_aut = "🟡 DA MONITORARE"
-        else:
-            colore_aut = "#B91C1C"
-            stato_aut = "🔴 CRITICA"
-            
-        st.markdown(f"""
-            <div style='background-color:#F8FAFC; padding:12px; border-radius:8px; border:1px solid #E2E8F0; border-left:5px solid {colore_aut};'>
-                <p style='color:#64748B; font-size:11px; font-weight:700; text-transform:uppercase; margin:0;'>🛡️ Autonomia Costi Fissi Struttura</p>
-                <h3 style='color:{colore_aut}; margin:4px 0; font-size:18px;'>{mesi_autonomia:.1f} Mesi ({stato_aut})</h3>
-                <p style='color:#475569; font-size:11px; margin:0;'>Copertura delle spese fisse con la liquidità attuale in banca.</p>
-            </div>
-        """, unsafe_allow_html=True)
-        
-    with badge_col2:
-        if incidenza_acquisti_pct <= 65.0:
-            colore_term = "#15803D"
-            stato_term = "🟢 EQUILIBRATO"
-        elif 65.0 < incidenza_acquisti_pct <= 75.0:
-            colore_term = "#A16207"
-            stato_term = "🟡 MAGAZZINO IN CRESCITA"
-        else:
-            colore_term = "#B91C1C"
-            stato_term = "🔴 SOVRA-APPROVVIGIONAMENTO CRITICO"
-            
-        st.markdown(f"""
-            <div style='background-color:#F8FAFC; padding:12px; border-radius:8px; border:1px solid #E2E8F0; border-left:5px solid {colore_term};'>
-                <p style='color:#64748B; font-size:11px; font-weight:700; text-transform:uppercase; margin:0;'>🌡️ Termometro Generale Acquisti Componenti</p>
-                <h3 style='color:{colore_term}; margin:4px 0; font-size:18px;'>{incidenza_acquisti_pct:.1f}% ({stato_term})</h3>
-                <p style='color:#475569; font-size:11px; margin:0;'>Impatto totale delle scadenze fornitori sul fatturato cumulativo generato.</p>
-            </div>
-        """, unsafe_allow_html=True)
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # SCHERMATA A SCOMPARSA (IL TUO CLIC DI DETTAGLIO)
-    with st.expander("🔍 Clicca qui per vedere il dettaglio dei mesi in cui la cassa va sotto"):
         condizioni = [
             (df_cashflow['Flusso Cassa Netto'] < 0) & (df_cashflow['Costi Variabili'] > df_cashflow['Fatturato'] * 0.50),
             (df_cashflow['Flusso Cassa Netto'] < 0),
