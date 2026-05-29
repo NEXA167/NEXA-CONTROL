@@ -274,24 +274,36 @@ with col_p2:
     st.markdown("<p style='text-align:center; color:#64748B; font-size:12px; font-weight:600; margin-top:-20px;'>Capitale Dormiente Attuale</p>", unsafe_allow_html=True)
 
 with col_p3:
-    st.markdown("<div class='titolo-grafico-libero'>3. Radar Cassa & Allerta Predittiva CCII</div>", unsafe_allow_html=True)
-    if not df_attivi.empty:
-        mesi_attivi = df_attivi['Mese'].tolist()
-        fig_line = go.Figure()
-        fig_line.add_trace(go.Scatter(x=mesi_attivi, y=df_attivi['Fatturato'], mode='lines+markers', name='Fatturato', line=dict(color='#1E88E5', width=3)))
-        fig_line.add_trace(go.Scatter(x=mesi_attivi, y=df_attivi['Punto di Pareggio'], mode='lines', name='Pareggio', line=dict(color='red', dash='dash')))
-        fig_line.update_layout(margin=dict(l=5, r=5, t=5, b=5), height=140, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', showlegend=False)
-        st.plotly_chart(fig_line, use_container_width=True, key="line_v51_final")
-        
-        st.markdown(f"<p style='margin:0; font-size:13px; font-weight:600;'>Incidenza Costi Fìssi Struttura: {incidenza_costi_pct:.1f}%</p>", unsafe_allow_html=True)
-        if incidenza_costi_pct > 50.0 or media_fatturato < punto_pareggio_medio:
-            st.markdown("<span class='badge-ccii' style='background-color:#FEE2E2; color:#B91C1C;'>🚨 ALLERTA RISCHIO CCII CRITICO</span>", unsafe_allow_html=True)
-        elif 30.0 <= incidenza_costi_pct <= 50.0:
-            st.markdown("<span class='badge-ccii' style='background-color:#FEF08A; color:#A16207;'>🟡 SOGLIA DI ATTENZIONE OPERATIVA</span>", unsafe_allow_html=True)
+    st.markdown("<div class='titolo-grafico-libero'>3. Radar Cassa & Allerta Predittiva</div>", unsafe_allow_html=True)
+    
+    # Se Monica ha inserito dati predittivi, mostriamo il responso della cassa futura
+    if 'scadenze_attive' in df_attivi.columns and (ultime_scadenze > 0 or ultime_rateizzazioni > 0):
+        if cassa_previsionale >= 0:
+            st.success(f"🟢 CASSA PREVISTA 30GG: OK\n\nSaldo stimato: € {cassa_previsionale:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.'))
+            st.markdown("<p style='font-size:12px; color:#64748B; margin-top:5px;'>Gli incassi futuri coprono interamente le scadenze e i costi di struttura del prossimo mese.</p>", unsafe_allow_html=True)
         else:
-            st.markdown("<span class='badge-ccii' style='background-color:#DCFCE7; color:#15803D;'>🟢 SOSTENIBILITÀ AZIENDALE OTTIMALE</span>", unsafe_allow_html=True)
+            mancano_soldi = abs(cassa_previsionale)
+            st.error(f"🔴 ALLERTA SCOMPENSO DI CASSA\n\nDeficit stimato: € -{mancano_soldi:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.'))
+            st.markdown(f"<p style='font-size:12px; color:#B91C1C; font-weight:600; margin-top:5px;'>⚠️ Attenzione: pianificare anticipi fatture o fidi per almeno € {mancano_soldi:,.2f} per evitare tensioni di liquidità.</p>", unsafe_allow_html=True)
     else:
-        st.info("📥 In attesa di storico dati.")
+        # Se non ci sono dati predittivi, mostriamo l'analisi standard basata sul grafico storico e CCII
+        if not df_attivi.empty:
+            mesi_attivi = df_attivi['Mese'].tolist()
+            fig_line = go.Figure()
+            fig_line.add_trace(go.Scatter(x=mesi_attivi, y=df_attivi['Fatturato'], mode='lines+markers', name='Fatturato', line=dict(color='#1E88E5', width=3)))
+            fig_line.add_trace(go.Scatter(x=mesi_attivi, y=df_attivi['Punto di Pareggio'], mode='lines', name='Pareggio', line=dict(color='red', dash='dash')))
+            fig_line.update_layout(margin=dict(l=5, r=5, t=5, b=5), height=140, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', showlegend=False)
+            st.plotly_chart(fig_line, use_container_width=True, key="line_v51_final")
+            
+            st.markdown(f"<p style='margin:0; font-size:13px; font-weight:600;'>Incidenza Costi Fissi Struttura: {incidenza_costi_pct:.1f}%</p>", unsafe_allow_html=True)
+            if incidenza_costi_pct > 50.0 or media_fatturato < punto_pareggio_medio:
+                st.markdown("<span class='badge-ccii' style='background-color:#FEE2E2; color:#B91C1C;'>🚨 ALLERTA RISCHIO CCII CRITICO</span>", unsafe_allow_html=True)
+            elif 30.0 <= incidenza_costi_pct <= 50.0:
+                st.markdown("<span class='badge-ccii' style='background-color:#FEF08A; color:#A16207;'>🟡 SOGLIA DI ATTENZIONE OPERATIVA</span>", unsafe_allow_html=True)
+            else:
+                st.markdown("<span class='badge-ccii' style='background-color:#DCFCE7; color:#15803D;'>🟢 SOSTENIBILITÀ AZIENDALE OTTIMALE</span>", unsafe_allow_html=True)
+        else:
+            st.info("📥 In attesa di storico dati.")
 
 # --- 9. KPI STRATEGICI ---
 st.markdown("<br>", unsafe_allow_html=True)
