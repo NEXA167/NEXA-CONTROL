@@ -170,14 +170,14 @@ def mostra_maschera_inserimento():
         mag_val = st.number_input("mag_n_new", min_value=0.0, value=float(dati_attuali["Valore Magazzino"]), step=1000.0, label_visibility="collapsed")
 
     with col3:
-        st.markdown("#### 📉 Costi Struttura")
-        st.markdown("<p class='label-maschera'>Costi Variabili Merci (€)</p>", unsafe_allow_html=True)
-        cv_val = st.number_input("cv_n_new", min_value=0.0, value=float(dati_attuali["Costi Variabili"]), step=1000.0, label_visibility="collapsed")
+        st.markdown("#### 📉 Struttura Costi")
+        st.markdown("<p class='label-maschera'>Fornitori Componenti / Produzione (€)</p>", unsafe_allow_html=True)
+        cv_val = st.number_input("cv_n_new", min_value=0.0, value=float(dati_attuali["Costi Variabili"]), step=5000.0, label_visibility="collapsed")
         
-        st.markdown("<p class='label-maschera'>Costi Fissi (Fornitori) (€)</p>", unsafe_allow_html=True)
+        st.markdown("<p class='label-maschera'>Spese Fisse Struttura (Affitti/Servizi) (€)</p>", unsafe_allow_html=True)
         cf_val = st.number_input("cf_n_new", min_value=0.0, value=float(dati_attuali["Costi Fissi (Fornitori)"]), step=1000.0, label_visibility="collapsed")
         
-        st.markdown("<p class='label-maschera'>Mutui e Leasing (€)</p>", unsafe_allow_html=True)
+        st.markdown("<p class='label-maschera'>Uscite Mutui e Leasing (€)</p>", unsafe_allow_html=True)
         ml_val = st.number_input("ml_n_new", min_value=0.0, value=float(dati_attuali["Mutui e Leasing"]), step=500.0, label_visibility="collapsed")
 
     with col4:
