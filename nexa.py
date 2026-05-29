@@ -325,7 +325,7 @@ with kpi_col1:
         <div class='kpi-mini-box'>
             <p style='color:#64748B; font-size:13px; font-weight:700; text-transform:uppercase; margin:0;'>🎯 Fatturato di Sicurezza Mensile</p>
             <h2 style='color:#0F172A; font-size:28px; margin:5px 0;'>€ {bep_mensile_sicurezza:,.2f}</h2>
-            <p style='color:#475569; font-size:12px; margin:0;'>Traguardo minimo per coprire i costi di struttura fissi.</p>
+            <p style='color:#475569; font-size:12px; margin:0;'>Traguardo minimo per coprire le Spese Fisse di Struttura.</p>
         </div>
     """, unsafe_allow_html=True)
 
@@ -349,8 +349,8 @@ st.dataframe(
         "Fatturato": st.column_config.NumberColumn("Fatturato", format="€ %,.2f"),
         "Margine %": st.column_config.NumberColumn("Margine %", format="%,.2f"), 
         "Saldo Banca (Cassa)": st.column_config.NumberColumn("Cassa", format="€ %,.2f"),
-        "Costi Variabili": st.column_config.NumberColumn("Costi Var.", format="€ %,.2f"), 
-        "Costi Fissi (Fornitori)": st.column_config.NumberColumn("Costi Fissi", format="€ %,.2f"),
+        "Costi Variabili": st.column_config.NumberColumn("Fornitori Componenti (Var.)", format="€ %,.2f"), 
+        "Costi Fissi (Fornitori)": st.column_config.NumberColumn("Spese Fisse Struttura", format="€ %,.2f"),
         "Mutui e Leasing": st.column_config.NumberColumn("Mutui/Leasing", format="€ %,.2f"), 
         "Debiti IVA e Contributi": st.column_config.NumberColumn("IVA/INPS", format="€ %,.2f"),
         "Valore Magazzino": st.column_config.NumberColumn("Magazzino", format="€ %,.2f"), 
