@@ -538,7 +538,7 @@ def invia_email_onboarding(email_destinatario, nome_cliente, username_generato, 
     
     # CREDENZIALI REALI DI CONFIGURAZIONE AZIENDALE
     BREVO_USER_LOGIN = "acfc3b001@smtp-brevo.com" 
-    PASSWORD_APPLICAZIONE = "xsmtpsib-24df274dfb77418f5508fd430f3017d774ff2140272dd14910d364c299f700c3-v5znEzrc9BLtJopS" 
+    PASSWORD_APPLICAZIONE = "xsmtpsib-24df274dfb77418f5508fd430f3017d774ff2140272dd14910d364c299f700c3-IBWQKOLw8KSgCj20" 
     
     # Costruzione del messaggio in HTML elegante e coordinato
     messaggio = MIMEMultipart()
