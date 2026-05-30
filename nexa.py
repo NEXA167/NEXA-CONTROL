@@ -76,10 +76,17 @@ if not st.session_state.autenticato:
         <style>
         .stApp { background-color: #EBF0F5 !important; } 
         .login-minimal-container { max-width: 530px; margin: 120px auto; text-align: center; }
+        
+        /* 👁️ NUOVA REGOLA: SPARIRE BARRA DI CONDIVISIONE STREAMLIT */
+        header[data-testid="stHeader"] {
+            visibility: hidden;
+            height: 0%;
+            background: rgba(0,0,0,0);
+        }
+        footer { visibility: hidden; }
+        #MainMenu { visibility: hidden; }
+        
         .login-title-minimal { color: #0F172A; font-size: 41px; font-weight: 800; letter-spacing: -0.5px; margin: 0; text-align: center !important; display: block; width: 100%; }
-        .login-subtitle-minimal { color: #64748B; font-size: 15px; margin-bottom: 40px; text-align: center; }
-        .field-label-minimal { color: #0F172A !important; font-size: 19px; font-weight: 700; text-align: left !important; margin-bottom: 6px; margin-top: 25px; width: 55%; margin-left: 22.5% !important; }
-        div[data-testid="stTextInput"] { width: 55% !important; margin: 0 auto !important; }
         
         /* Uniformiamo i box d'inserimento bianchi puliti */
         div[data-baseweb="input"] { border: 2px solid #CBD5E1 !important; border-radius: 8px !important; background-color: #FFFFFF !important; }
@@ -126,8 +133,15 @@ if not st.session_state.autenticato:
 # --- 4. STILE DASHBOARD REALE ---
 st.markdown("""
     <style>
+    /* 👁️ SPARIRE BARRA DI CONDIVISIONE ANCHE NELLA DASHBOARD */
+    header[data-testid="stHeader"] {
+        visibility: hidden;
+        height: 0%;
+    }
+    footer { visibility: hidden; }
+    #MainMenu { visibility: hidden; }
+    
     .stApp { background-color: #EBF0F5 !important; }
-    .main { background-color: #EBF0F5; color: #1E293B; }
     .stButton>button { background-color: #FFFFFF; color: #1E293B; border: 1px solid #CBD5E1; border-radius: 8px; font-weight: bold; padding: 8px 16px; }
     .titolo-grafico-libero { color: #1E293B; font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
     .testo-valore-centrale { color: #0F172A; font-size: 42px; font-weight: 800; text-align: center; margin: 15px 0; }
