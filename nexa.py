@@ -385,10 +385,23 @@ with col_p3:
 st.markdown("---")
 st.markdown("### 💸 4. Monitoraggio Flusso di Cassa Reale & Allerte")
 
+# INIEZIONE CSS PER RIDURRE LE COLONNE ED ELIMINARE LO SCROLL CURSORE
+st.markdown("""
+    <style>
+    .stDataFrame, div[data-testid="stDataFrame"] {
+        width: 100% !important;
+        font-size: 12px !important;
+    }
+    div[data-testid="stDataFrame"] td, div[data-testid="stDataFrame"] th {
+        padding: 3px 5px !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 if not df_attivi.empty:
     df_cashflow = df_attivi.copy()
-    df_cashflow['Uscite Totali Mese'] = df_cashflow['Costi Variabili'] + df_cashflow['Costi Fissi (Fornitori)'] + df_cashflow['Mutui e Leasing']
-    df_cashflow['Flusso Cassa Netto'] = df_cashflow['Fatturato'] - df_cashflow['Uscite Totali Mese']
+    df_cashflow['Uscites Totali Mese'] = df_cashflow['Costi Variabili'] + df_cashflow['Costi Fissi (Fornitori)'] + df_cashflow['Mutui e Leasing']
+    df_cashflow['Flusso Cassa Netto'] = df_cashflow['Fatturato'] - df_cashflow['Uscites Totali Mese']
     
     # Formula Evoluta: Margine di contribuzione monetario medio mensile (Entrate - Acquisti Componenti)
     margine_contribuzione_medio = (df_cashflow['Fatturato'].mean() - df_cashflow['Costi Variabili'].mean())
@@ -397,11 +410,10 @@ if not df_attivi.empty:
     # Denominatore sicuro per i costi fisici della struttura
     costo_struttura_riferimento = ultimo_costo_fisso if ultimo_costo_fisso > 0 else (df_cashflow['Costi Fissi (Fornitori)'].mean() if df_cashflow['Costi Fissi (Fornitori)'].mean() > 0 else 1.0)
     
-    # Calcolo dinamico: se hai inserito un finanziamento extra, l'autonomia salta subito su basandosi sulla nuova liquidità inserita!
+    # Calcolo dinamico dell'autonomia
     if finanziamenti_ricevuti_totale > 0:
         mesi_autonomia = finanziamenti_ricevuti_totale / costo_struttura_riferimento
     else:
-        # Altrimenti calcola l'autonomia strutturale basata sulla capacità del tuo margine operativo di coprire i costi fissi
         mesi_autonomia = margine_contribuzione_medio / costo_struttura_riferimento
         
     if mesi_autonomia < 0: mesi_autonomia = 0.0
@@ -466,7 +478,7 @@ if not df_attivi.empty:
         ]
         df_cashflow['Stato Liquidità'] = np.select(condizioni, scelte, default="OK")
         
-        df_cf_vis = df_cashflow[['Mese', 'Fatturato', 'Costi Variabili', 'Costi Fissi (Fornitori)', 'Uscite Totali Mese', 'Flusso Cassa Netto', 'Stato Liquidità']]
+        df_cf_vis = df_cashflow[['Mese', 'Fatturato', 'Costi Variabili', 'Costi Fissi (Fornitori)', 'Uscites Totali Mese', 'Flusso Cassa Netto', 'Stato Liquidità']].rename(columns={'Uscites Totali Mese': 'Uscite Totali (€)'})
         
         st.dataframe(
             df_cf_vis,
@@ -475,7 +487,7 @@ if not df_attivi.empty:
                 "Fatturato": st.column_config.NumberColumn("Incassi (Fatturato) (€)", format="€ %,.2f"),
                 "Costi Variabili": st.column_config.NumberColumn("Scadenze Fornitori Merci (€)", format="€ %,.2f"),
                 "Costi Fissi (Fornitori)": st.column_config.NumberColumn("Spese Fisse Struttura (€)", format="€ %,.2f"),
-                "Uscite Totali Mese": st.column_config.NumberColumn("Uscite Totali (€)", format="€ %,.2f"),
+                "Uscite Totali (€)": st.column_config.NumberColumn("Uscite Totali (€)", format="€ %,.2f"),
                 "Flusso Cassa Netto": st.column_config.NumberColumn("Cassa Netta Mese (€)", format="€ %,.2f"),
                 "Stato Liquidità": st.column_config.TextColumn("Diagnosi Diagnostica Avanzata")
             },
