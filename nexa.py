@@ -73,10 +73,10 @@ esegui_query("""
         scadenze_attive REAL, rateizzazioni_extra REAL, finanziamenti_extra REAL
     )
 """)
-# Inserimento utenti iniziali blindato con i nomi delle colonne espliciti
-esegui_query("INSERT OR IGNORE INTO utenti (username, password, azienda) VALUES ('arteq', 'bloom2026', 'Arteq S.r.l.')")
-esegui_query("INSERT OR IGNORE INTO utenti (username, password, azienda) VALUES ('luca', 'nexa123', 'Consulenza Luca')")
-esegui_query("INSERT OR IGNORE INTO utenti (username, password, azienda) VALUES ('monica', 'monica2026', 'MONICA')")
+# 🔥 FORZIAMO IL RIPRISTINO DELLE CREDENZIALI AD OGNI AVVIO CON "OR REPLACE"
+esegui_query("INSERT OR REPLACE INTO utenti (username, password, azienda) VALUES ('arteq', 'bloom2026', 'Arteq S.r.l.')")
+esegui_query("INSERT OR REPLACE INTO utenti (username, password, azienda) VALUES ('luca', 'nexa123', 'Consulenza Luca')")
+esegui_query("INSERT OR REPLACE INTO utenti (username, password, azienda) VALUES ('monica', 'monica2026', 'MONICA')")
 
 # --- 2. CONFIGURAZIONE PAGINA ED ELEGANZA VISIVA ---
 st.set_page_config(page_title="Nexa SaaS Platform", layout="wide", initial_sidebar_state="collapsed")
