@@ -92,56 +92,37 @@ if not st.session_state.autenticato:
         <style>
         .stApp { background-color: #EBF0F5 !important; } 
         .login-minimal-container { max-width: 530px; margin: 120px auto; text-align: center; }
-        /* Nasconde il pulsante di amministrazione anche per il proprietario dell'app */
-        .stActionButton, 
-        button[data-testid="stActionButton"],
-        div[data-testid="stDeploymentViewer"] {
-            display: none !important;
-            visibility: hidden !important;
-        }
         
-        /* 👁️ 1. OCULTAMENTO TOTALE HEADER SUPERIORE */
-        header[data-testid="stHeader"], div[data-testid="stHeader"] {
-            visibility: hidden !important;
-            height: 0px !important;
-            display: none !important;
-        }
+        /* Oculamento Header e pulsanti amministrativi Cloud */
+        .stActionButton, button[data-testid="stActionButton"], div[data-testid="stDeploymentViewer"] { display: none !important; visibility: hidden !important; }
+        header[data-testid="stHeader"], div[data-testid="stHeader"] { visibility: hidden !important; height: 0px !important; display: none !important; }
+        footer, #MainMenu, .stDeployButton { visibility: hidden !important; display: none !important; }
+        [data-testid="stAppDeployDocsWrapper"], button[id*="manage-app"] { display: none !important; visibility: hidden !important; }
         
-        /* 👁️ 2. DISATTIVAZIONE ELEMENTI STRUTTURALI IN BASSO (PULSANTE MANAGE APP) */
-        footer { visibility: hidden !important; display: none !important; }
-        #MainMenu { visibility: hidden !important; display: none !important; }
-        .stDeployButton { visibility: hidden !important; display: none !important; }
-        
-        /* Intercettiamo l'elemento nativo del cloud colpendolo in ogni sua variante */
-        [data-testid="stAppDeployDocsWrapper"],
-        [data-testid="stAppDeployDocsWrapper"] button,
-        button[id*="manage-app"],
-        div[class*="stAppDeployDocsWrapper"] {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-            height: 0px !important;
-            width: 0px !important;
-            pointer-events: none !important;
-        }
-        
-        /* 🎯 3. CENTRATURA E SIMMETRIA DEI TESTI DI INGRESSO */
+        /* Centratura e simmetria testi */
         .login-title-minimal { color: #0F172A; font-size: 41px; font-weight: 800; letter-spacing: -0.5px; margin: 0 auto 10px auto; text-align: center !important; display: block; width: 100%; }
         .login-subtitle-minimal { color: #64748B; font-size: 15px; margin: 0 auto 40px auto; text-align: center !important; display: block; width: 100%; }
         .field-label-minimal { color: #0F172A !important; font-size: 19px; font-weight: 700; text-align: center !important; margin-bottom: 6px; margin-top: 25px; display: block; width: 100%; }
         
         div[data-testid="stTextInput"] { width: 55% !important; margin: 0 auto !important; }
         
-        /* Uniformiamo i box d'inserimento bianchi puliti */
+        /* Uniformiamo i box d'inserimento bianchi */
         div[data-baseweb="input"] { border: 2px solid #CBD5E1 !important; border-radius: 8px !important; background-color: #FFFFFF !important; }
         div[data-baseweb="input"] > div { background-color: #FFFFFF !important; }
-        
         input { color: #0F172A !important; font-weight: 600 !important; font-size: 19px !important; text-align: center !important; }
         
-        /* MASCHERA DI PROTECTION PER IL CAMPO PASSWORD */
+        /* MASCHERA DI PROTEZIONE REALE: Trasforma il testo in pallini neri senza far insospettire i browser */
         .scudo-password-input input {
             -webkit-text-security: disk !important; 
             text-security: disk !important;
+        }
+        
+        /* Forziamo la disattivazione visiva delle tendine e dei micro-bottoni di autofill */
+        input::-webkit-contacts-auto-fill-button, 
+        input::-webkit-credentials-auto-fill-button {
+            visibility: hidden !important;
+            display: none !important;
+            pointer-events: none !important;
         }
         
         .btn-container-minimal { width: 55%; margin: 40px auto 0 auto; }
@@ -154,12 +135,13 @@ if not st.session_state.autenticato:
     st.markdown("<p class='login-subtitle-minimal'>Pannello di Accesso Server Predittivo</p>", unsafe_allow_html=True)
     
     st.markdown("<p class='field-label-minimal'>👤 USERNAME</p>", unsafe_allow_html=True)
-    # 🎯 VERSIONE UNIVERSALE ANTI-BANNER (Valida per Firefox, Chrome, Edge, Safari)
-    user_input = st.text_input("Codice Ingresso Server", label_visibility="collapsed", autocomplete="off", key="nexa_universal_gate_usr_v100").strip().lower()
+    # Chiave di reset per l'username
+    user_input = st.text_input("Codice Ingresso Server", label_visibility="collapsed", autocomplete="off", key="nexa_shield_unv_usr_final").strip().lower()
     
     st.markdown("<p class='field-label-minimal'>🔒 PASSWORD</p>", unsafe_allow_html=True)
-    # 🎯 RIPRISTINO PALLINI + BLOCCO AUTOFILL: Usiamo "new-password" e una chiave senza la parola "login"
-    pass_input = st.text_input("Chiave Verifica Server", label_visibility="collapsed", type="password", autocomplete="new-password", key="nexa_universal_gate_pwd_v100")
+    # 🎯 CORREZIONE CHIRURGICA: Apriamo il div corretto per lo scudo visivo e togliamo type="password"
+    st.markdown("<div class='scudo-password-input'>", unsafe_allow_html=True)
+    pass_input = st.text_input("Chiave Verifica Server", label_visibility="collapsed", autocomplete="off", key="nexa_shield_unv_pwd_final")
     st.markdown("</div>", unsafe_allow_html=True)
     
     st.markdown("<div class='btn-container-minimal'>", unsafe_allow_html=True)
