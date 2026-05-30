@@ -715,52 +715,64 @@ if st.session_state.autenticato and st.session_state.utente_attuale.lower() in [
                         if invio_successo:
                             st.success(f"✅ Licenza di 12 mesi attivata per `{nuovo_username}`! Email inviata.")
                             st.rerun()
-    
     with tab_gestisci:
         st.markdown("### 🛠️ Monitoraggio Scadenze e Revoca Accessi")
         
         try:
-            # Estraiamo i dati degli utenti inclusa la data di creazione
+            # Estraiamo i dati degli utenti dal database
             df_utenti = esegui_query("SELECT username, azienda, email, data_creazione, stato_licenza FROM utenti WHERE username NOT IN ('arteq', 'monica')", ritorna_df=True)
             
             if not df_utenti.empty:
-                for index, row in df_utenti.iterrows():
-                    user_client = row['username']
-                    azienda_client = row['azienda']
-                    email_client = row['email']
-                    data_crea_str = row['data_creazione'] if row['data_creazione'] else "2026-05-30"
-                    stato_lic = row['stato_licenza'] if row['stato_licenza'] else "ATTIVO"
-                    
-                    # Calcolo dei mesi passati e rimanenti
-                    try:
-                        data_crea = datetime.datetime.strptime(data_crea_str, "%Y-%m-%d").date()
-                        data_scadenza = data_crea + datetime.timedelta(days=365)
-                        giorni_rimanenti = (data_scadenza - datetime.date.today()).days
-                        mesi_rimanenti = max(0, int(giorni_rimanenti / 30))
-                    except:
-                        mesi_rimanenti = 12
-                        giorni_rimanenti = 365
-                    
-                    # Disegno della card utente con gestione spazio
-                    c1, c2, c3, c4 = st.columns([2, 3, 2, 1])
-                    with c1:
-                        st.markdown(f"**{azienda_client}** \n`User: {user_client}`")
-                    with c2:
-                        st.markdown(f"📧 {email_client}")
-                    with c3:
-                        if giorni_rimanenti <= 0:
-                            st.error("🚨 SCADUTA (0 gg)")
-                        elif giorni_rimanenti <= 30:
-                            st.warning(f"⏳ Scade tra {giorni_rimanenti} gg")
-                        else:
-                            st.success(f"🟢 Attiva ({mesi_rimanenti} mesi rimasti)")
-                    with c4:
-                        # Pulsante di cancellazione sicura con chiave univoca
-                        if st.button("🗑️", key=f"del_{user_client}", help=f"Elimina definitivamente {azienda_client}"):
-                            esegui_query("DELETE FROM utenti WHERE username = ?", (user_client,))
-                            st.toast(f"❌ Account di {azienda_client} eliminato dal server!", icon="🗑️")
-                            st.rerun()
-                    st.markdown("---")
+                # 🔍 INNESTO LENTE DI RICERCA INTERFACCIA
+                cerca_partner = st.text_input("🔍 Cerca Partner o Email...", placeholder="Digita la ragione sociale o lo username da filtrare...", key="cerca_licenze_input").strip().lower()
+                st.markdown("<br>", unsafe_allow_html=True)
+                
+                # Applichiamo il filtro in tempo reale se l'utente digita qualcosa
+                if cerca_partner:
+                    df_utenti = df_utenti[
+                        df_utenti['azienda'].str.lower().str.contains(cerca_partner, na=False) | 
+                        df_utenti['username'].str.lower().str.contains(cerca_partner, na=False) |
+                        df_utenti['email'].str.lower().str.contains(cerca_partner, na=False)
+                    ]
+                
+                if not df_utenti.empty:
+                    for index, row in df_utenti.iterrows():
+                        user_client = row['username']
+                        azienda_client = row['azienda']
+                        email_client = row['email'] if row['email'] else "Nessuna mail inserita"
+                        data_crea_str = row['data_creazione'] if row['data_creazione'] else "2026-05-30"
+                        
+                        # Calcolo dei mesi passati e rimanenti
+                        try:
+                            data_crea = datetime.datetime.strptime(data_crea_str, "%Y-%m-%d").date()
+                            data_scadenza = data_crea + datetime.timedelta(days=365)
+                            giorni_rimanenti = (data_scadenza - datetime.date.today()).days
+                            mesi_rimanenti = max(0, int(giorni_rimanenti / 30))
+                        except:
+                            mesi_rimanenti = 12
+                            giorni_rimanenti = 365
+                        
+                        # Disegno della card utente con gestione spazio
+                        c1, c2, c3, c4 = st.columns([2, 3, 2, 1])
+                        with c1:
+                            st.markdown(f"**{azienda_client}** \n`User: {user_client}`")
+                        with c2:
+                            st.markdown(f"📧 {email_client}")
+                        with c3:
+                            if giorni_rimanenti <= 0:
+                                st.error("🚨 SCADUTA (0 gg)")
+                            elif giorni_rimanenti <= 30:
+                                st.warning(f"⏳ Scade tra {giorni_rimanenti} gg")
+                            else:
+                                st.success(f"🟢 Attiva ({mesi_rimanenti} mesi rimasti)")
+                        with c4:
+                            if st.button("🗑️", key=f"del_{user_client}", help=f"Elimina definitivamente {azienda_client}"):
+                                esegui_query("DELETE FROM utenti WHERE username = ?", (user_client,))
+                                st.toast(f"❌ Account di {azienda_client} eliminato dal server!", icon="🗑️")
+                                st.rerun()
+                        st.markdown("---")
+                else:
+                    st.info("🔍 Nessun partner corrisponde ai criteri di ricerca inseriti.")
             else:
                 st.info("ℹ️ Nessun partner esterno registrato nel sistema.")
         except Exception as err:
