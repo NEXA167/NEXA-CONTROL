@@ -690,7 +690,8 @@ if st.session_state.autenticato and st.session_state.utente_attuale.lower() in [
             nuovo_nome = st.text_input("Ragione Sociale / Nome Partner", placeholder="Es. Nexa Enterprise S.r.l.", key="add_nome")
             nuova_email = st.text_input("Email di Destinazione", placeholder="Es. info@nexaplatform.it", key="add_email")
         with col2:
-            suggerimento_user = nuovo_nome.lower().replace(" ", "").replace(".", "")[:10] if nuovo_nome else ""
+            # 🎯 RIPRISTINO AUTOMATISMO USERNAME: Prende il nome e lo preimposta da solo eliminando spazi e punti
+            suggerimento_user = nuovo_nome.lower().replace(" ", "").replace(".", "")[:10] if nuovo_nome else "nuovopartner"
             nuovo_username = st.text_input("Username Account", value=suggerimento_user, placeholder="Username per il login", key="add_user")
             nuova_password = st.text_input("Password Temporanea", value="nexa2026!", placeholder="Password iniziale", key="add_pass")
 
@@ -700,7 +701,6 @@ if st.session_state.autenticato and st.session_state.utente_attuale.lower() in [
                     
                     data_odierna = datetime.date.today().strftime("%Y-%m-%d")
                     
-                    # Proviamo a inserire con i campi data per la licenza
                     try:
                         esegui_query(
                             "INSERT OR REPLACE INTO utenti (username, password, azienda, email, data_creazione, stato_licenza) VALUES (?, ?, ?, ?, ?, ?)",
@@ -708,7 +708,6 @@ if st.session_state.autenticato and st.session_state.utente_attuale.lower() in [
                         )
                         db_salvato = True
                     except Exception as e:
-                        # Se le colonne non esistono nel DB, le creiamo al volo (Migrazione automatica)
                         try:
                             esegui_query("ALTER TABLE utenti ADD COLUMN email TEXT")
                             esegui_query("ALTER TABLE utenti ADD COLUMN data_creazione TEXT")
@@ -725,68 +724,7 @@ if st.session_state.autenticato and st.session_state.utente_attuale.lower() in [
                     if db_salvato:
                         invio_successo = invia_email_onboarding(nuova_email, nuovo_nome, nuovo_username, nuova_password)
                         if invio_successo:
-                            st.success(f"✅ Licenza di 12 mesi attivata per `{nuovo_username}`! Email inviata.")
+                            # 🎯 RIPRISTINO SCRITTA VERDE: Mostra il successo dell'operazione a schermo
+                            st.success(f"✅ Mail inviata con successo! Licenza di 12 mesi attivata per `{nuovo_username}`.")
+                            st.toast("📧 Notifica inviata!", icon="🚀")
                             st.rerun()
-    with tab_gestisci:
-        st.markdown("### 🛠️ Monitoraggio Scadenze e Revoca Accessi")
-        
-        try:
-            # Estraiamo i dati degli utenti dal database
-            df_utenti = esegui_query("SELECT username, azienda, email, data_creazione, stato_licenza FROM utenti WHERE username NOT IN ('arteq', 'monica')", ritorna_df=True)
-            
-            if not df_utenti.empty:
-                # 🔍 INNESTO LENTE DI RICERCA INTERFACCIA
-                cerca_partner = st.text_input("🔍 Cerca Partner o Email...", placeholder="Digita la ragione sociale o lo username da filtrare...", key="cerca_licenze_input").strip().lower()
-                st.markdown("<br>", unsafe_allow_html=True)
-                
-                # Applichiamo il filtro in tempo reale se l'utente digita qualcosa
-                if cerca_partner:
-                    df_utenti = df_utenti[
-                        df_utenti['azienda'].str.lower().str.contains(cerca_partner, na=False) | 
-                        df_utenti['username'].str.lower().str.contains(cerca_partner, na=False) |
-                        df_utenti['email'].str.lower().str.contains(cerca_partner, na=False)
-                    ]
-                
-                if not df_utenti.empty:
-                    for index, row in df_utenti.iterrows():
-                        user_client = row['username']
-                        azienda_client = row['azienda']
-                        email_client = row['email'] if row['email'] else "Nessuna mail inserita"
-                        data_crea_str = row['data_creazione'] if row['data_creazione'] else "2026-05-30"
-                        
-                        # Calcolo dei mesi passati e rimanenti
-                        try:
-                            data_crea = datetime.datetime.strptime(data_crea_str, "%Y-%m-%d").date()
-                            data_scadenza = data_crea + datetime.timedelta(days=365)
-                            giorni_rimanenti = (data_scadenza - datetime.date.today()).days
-                            mesi_rimanenti = max(0, int(giorni_rimanenti / 30))
-                        except:
-                            mesi_rimanenti = 12
-                            giorni_rimanenti = 365
-                        
-                        # Disegno della card utente con gestione spazio
-                        c1, c2, c3, c4 = st.columns([2, 3, 2, 1])
-                        with c1:
-                            st.markdown(f"**{azienda_client}** \n`User: {user_client}`")
-                        with c2:
-                            st.markdown(f"📧 {email_client}")
-                        with c3:
-                            if giorni_rimanenti <= 0:
-                                st.error("🚨 SCADUTA (0 gg)")
-                            elif giorni_rimanenti <= 30:
-                                st.warning(f"⏳ Scade tra {giorni_rimanenti} gg")
-                            else:
-                                st.success(f"🟢 Attiva ({mesi_rimanenti} mesi rimasti)")
-                        with c4:
-                            if st.button("🗑️", key=f"del_{user_client}", help=f"Elimina definitivamente {azienda_client}"):
-                                esegui_query("DELETE FROM utenti WHERE username = ?", (user_client,))
-                                st.toast(f"❌ Account di {azienda_client} eliminato dal server!", icon="🗑️")
-                                st.rerun()
-                        st.markdown("---")
-                else:
-                    st.info("🔍 Nessun partner corrisponde ai criteri di ricerca inseriti.")
-            else:
-                st.info("ℹ️ Nessun partner esterno registrato nel sistema.")
-        except Exception as err:
-            st.error(f"Errore caricamento lista: {str(err)}")
-
