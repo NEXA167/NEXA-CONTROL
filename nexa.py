@@ -316,14 +316,15 @@ with col_p1:
             }
         ))
         
-        # Aggiungiamo le legende testuali direttamente sopra le rispettive linee per massima chiarezza
-        fig_gauge.add_annotation(x=0.5, y=-0.05, text="📊 Freccia Nera: Fatturato Medio Reale", showarrow=False, font=dict(size=11, color="#1E293B", fontfamily="sans-serif"))
-        fig_gauge.add_annotation(x=0.5, y=-0.20, text="🎯 Linea Rossa: Soglia Minima di Pareggio (BEP)", showarrow=False, font=dict(size=11, color="#DC2626", fontfamily="sans-serif"))
+        # Legende testuali corrette con la chiave 'family' richiesta da Plotly
+        fig_gauge.add_annotation(x=0.5, y=-0.05, text="📊 Freccia Nera: Fatturato Medio Reale", showarrow=False, font=dict(size=11, color="#1E293B", family="sans-serif"))
+        fig_gauge.add_annotation(x=0.5, y=-0.20, text="🎯 Linea Rossa: Soglia Minima di Pareggio (BEP)", showarrow=False, font=dict(size=11, color="#DC2626", family="sans-serif"))
         
         fig_gauge.update_layout(margin=dict(l=10, r=10, t=20, b=40), height=220, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
-        st.plotly_chart(fig_gauge, use_container_width=True, key="gauge_v65_final_labels")
+        st.plotly_chart(fig_gauge, use_container_width=True, key="gauge_v65_final_labels_fixed")
     else:
         st.info("📥 Inserisci i dati mensili per attivare il tachimetro.")
+
 with col_p2:
     st.markdown("<div class='titolo-grafico-libero'>2. Monitor del Magazzino</div>", unsafe_allow_html=True)
     fig_mag = go.Figure()
