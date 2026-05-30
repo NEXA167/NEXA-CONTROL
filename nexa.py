@@ -107,12 +107,16 @@ if not st.session_state.autenticato:
         
     st.markdown("<div class='login-minimal-container'>", unsafe_allow_html=True)
     st.markdown("<h1 class='login-title-minimal'>🚀 NEXA CONTROL</h1>", unsafe_allow_html=True)
-    st.markdown("<p class='login-subtitle-minimal'>Pannello di Accesso Server Predittivo</p>", unsafe_allow_html=True)
     
-    st.markdown("<p class='field-label-minimal'>👤 USERNAME</p>", unsafe_allow_html=True)
+    # MODIFICATO QUI: Forzata la centratura del sottotitolo
+    st.markdown("<p style='color: #64748B; font-size: 15px; margin-bottom: 40px; text-align: center !important; display: block; width: 100%;'>Pannello di Accesso Server Predittivo</p>", unsafe_allow_html=True)
+    
+    # MODIFICATO QUI: Forzata la centratura del testo USERNAME
+    st.markdown("<p style='color: #0F172A; font-size: 19px; font-weight: 700; text-align: center !important; margin-bottom: 6px; margin-top: 25px; display: block; width: 100%;'>👤 USERNAME</p>", unsafe_allow_html=True)
     user_input = st.text_input("nexa_field_usr_secure_gate", label_visibility="collapsed", autocomplete="off").strip().lower()
     
-    st.markdown("<p class='field-label-minimal'>🔒 PASSWORD</p>", unsafe_allow_html=True)
+    # MODIFICATO QUI: Forzata la centratura del testo PASSWORD
+    st.markdown("<p style='color: #0F172A; font-size: 19px; font-weight: 700; text-align: center !important; margin-bottom: 6px; margin-top: 25px; display: block; width: 100%;'>🔒 PASSWORD</p>", unsafe_allow_html=True)
     st.markdown("<div class='scudo-password-input'>", unsafe_allow_html=True)
     pass_input = st.text_input("nexa_field_pwd_secure_gate", label_visibility="collapsed", autocomplete="off", type="password")
     st.markdown("</div>", unsafe_allow_html=True)
