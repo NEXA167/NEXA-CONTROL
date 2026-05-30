@@ -590,7 +590,7 @@ if st.session_state.autenticato and st.session_state.utente_attuale.lower() in [
     st.sidebar.markdown("#### 📧 Onboarding Nuovo Cliente")
     
     # Campi di inserimento nella sidebar
-    nuovo_nome = st.sidebar.text_input("Ragione Sociale / Nome Partner", placeholder="Es. Gricaf S.r.l.")
+    nuovo_nome = st.sidebar.text_input("Ragione Sociale / Nome Partner", placeholder="Es. Nexa Control")
     nuova_email = st.sidebar.text_input("Email di Destinazione", placeholder="Es. amministrazione@clienti.it")
     
     # Generazione automatica di credenziali suggerite (modificabili)
