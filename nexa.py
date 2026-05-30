@@ -154,13 +154,11 @@ if not st.session_state.autenticato:
     st.markdown("<p class='login-subtitle-minimal'>Pannello di Accesso Server Predittivo</p>", unsafe_allow_html=True)
     
     st.markdown("<p class='field-label-minimal'>👤 USERNAME</p>", unsafe_allow_html=True)
-    # Chiave camuffata per bloccare l'autofill dell'utente
-    user_input = st.text_input("Codice Ingresso Server", label_visibility="collapsed", autocomplete="off", key="nexa_control_login_user_secure").strip().lower()
+    user_input = st.text_input("Codice Ingresso Server", label_visibility="collapsed", autocomplete="off", key="nexa_control_login_user_final_v100").strip().lower()
     
     st.markdown("<p class='field-label-minimal'>🔒 PASSWORD</p>", unsafe_allow_html=True)
-    st.markdown("<div class='scudo-password-input'>", unsafe_allow_html=True)
-    # 🔥 LA MODIFICA CHIAVE: Rimosso type="password" e usata una chiave generica. Il banner NON uscirà più!
-    pass_input = st.text_input("Chiave Verifica Server", label_visibility="collapsed", autocomplete="off", key="nexa_control_login_key_secure")
+    # 🎯 RIPRISTINO DEI PALLINI NERI: Aggiunto type="password" e cambiata la chiave per azzerare la memoria di TIM
+    pass_input = st.text_input("Chiave Verifica Server", label_visibility="collapsed", type="password", autocomplete="new-password", key="nexa_control_login_key_final_v100")
     st.markdown("</div>", unsafe_allow_html=True)
     
     st.markdown("<div class='btn-container-minimal'>", unsafe_allow_html=True)
@@ -652,10 +650,12 @@ def invia_email_onboarding(email_destinatario, nome_cliente, username_generato, 
                     
                     <div style="text-align: center; margin: 30px 0;">
                         <p style="font-size: 14px; color: #475569; margin-bottom: 15px;">Clicca sul pulsante qui sotto per accedere direttamente alla tua plancia di controllo:</p>
-                        <a href="https://nexa-control.streamlit.app/" target="_blank" style="background-color: #0F172A; color: #FFFFFF; padding: 14px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 15px; display: inline-block; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2);">🔗 ACCEDI A NEXA CONTROL</a>
+                        <!-- 🔥 URL CORRETTO SUL PULSANTE -->
+                        <a href="https://cruscotto-nexa.streamlit.app/" target="_blank" style="background-color: #0F172A; color: #FFFFFF; padding: 14px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 15px; display: inline-block; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2);">🔗 ACCEDI A NEXA CONTROL</a>
                     </div>
                     
-                    <p style="font-size: 11px; color: #94A3B8; text-align: center; margin-top: 10px;">Se il pulsante non si apre, copia questo indirizzo nel browser: https://nexa-control.streamlit.app/</p>
+                    <!-- 🔥 URL CORRETTO ANCHE NEL TESTO DI RISERVA -->
+                    <p style="font-size: 11px; color: #94A3B8; text-align: center; margin-top: 10px;">Se il pulsante non si apre, copia questo indirizzo nel browser: https://cruscotto-nexa.streamlit.app/</p>
                     
                     <hr style="border: 0; border-top: 1px solid #E2E8F0; margin: 32px 0;">
                     <p style="font-size: 13px; color: #64748B; line-height: 1.5;"><i>Consiglio di sicurezza: al primo accesso ti verrà richiesto di aggiornare la password temporanea per garantire la massima protezione del server predittivo.</i></p>
@@ -703,9 +703,10 @@ if st.session_state.autenticato and st.session_state.utente_attuale.lower() in [
         with col2:
             # 🎯 AUTOMATISMO USERNAME: Genera il suggerimento pulito
             suggerimento_user = nuovo_nome.lower().replace(" ", "").replace(".", "")[:10] if nuovo_nome else "nuovopartner"
-            nuovo_username = st.text_input("Codice Utente Partner", value=suggerimento_user, placeholder="Es: gricaf", key="partner_secure_code_v1")
-            nuova_password = st.text_input("Chiave Accesso Temporanea", value="nexa2026!", type="password", placeholder="Password iniziale", key="partner_secure_key_v1")
-
+            nuovo_username = st.text_input("Codice Utente Partner", value=suggerimento_user, placeholder="Es: gricaf", key="partner_secure_code_final_v100")
+            
+            # 🎯 RIPRISTINO IN CHIARO: Rimosso type="password" così vedi la chiave prima di mandare la mail!
+            nuova_password = st.text_input("Chiave Accesso Temporanea", value="nexa2026!", placeholder="Password iniziale", key="partner_secure_key_final_v100")
         if st.button("🚀 GENERA ACCOUNT E INVIA MAIL", use_container_width=True):
             if nuovo_nome and nuova_email and nuovo_username and nuova_password:
                 with st.spinner("Creazione profilo e configurazione licenza 12 mesi..."):
