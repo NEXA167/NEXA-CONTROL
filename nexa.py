@@ -5,8 +5,15 @@ import plotly.graph_objects as go
 import sqlite3
 
 # --- 1. FUNZIONE DATABASE (THREAD-SAFE) ---
-def esegui_query(query, params=(), fetch="none"):
+def esegui_query(query, params=(), fetch="none", ritorna_df=False):
     conn = sqlite3.connect("nexa_cloud.db", check_same_thread=False)
+    
+    if ritorna_df:
+        # Se il software chiede un DataFrame per le tabelle, usa Pandas direttamente
+        df = pd.read_sql_query(query, conn, params=params)
+        conn.close()
+        return df
+        
     cursor = conn.cursor()
     cursor.execute(query, params)
     risultato = None
@@ -14,7 +21,7 @@ def esegui_query(query, params=(), fetch="none"):
     elif fetch == "one": risultato = cursor.fetchone()
     conn.commit()
     conn.close()
-    return risultato # CORRETTO QUI: Ritorno pulito senza errori di sintassi
+    return risultato
 
 # Righe di manutenzione per aggiornare il database esistente
 try:
@@ -107,14 +114,36 @@ if not st.session_state.autenticato:
     if st.button("ACCEDI AL SOFTWARE", use_container_width=True):
         risultato = esegui_query("SELECT password, azienda FROM utenti WHERE username = ?", (user_input,), fetch="one")
         if risultato and risultato[0] == pass_input:
-            st.session_state.autenticato = True
-            st.session_state.utente_attuale = user_input
-            st.session_state.azienda_attuale = risultato[1]
-            st.rerun()
+            
+            # 🔐 INNESTO CHIRURGICO KILL-SWITCH (CONTROLLO 12 MESI)
+            accesso_consentito = True
+            if user_input.lower() not in ['arteq', 'monica', 'luca']:
+                try:
+                    import datetime
+                    # Controlliamo se l'utente ha una data di creazione nel database
+                    conn = sqlite3.connect("nexa_cloud.db")
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT data_creazione FROM utenti WHERE username = ?", (user_input,))
+                    data_row = cursor.fetchone()
+                    conn.close()
+                    
+                    if data_row and data_row[0]:
+                        data_crea = datetime.datetime.strptime(data_row[0], "%Y-%m-%d").date()
+                        # Se sono passati più di 365 giorni, blocca l'accesso!
+                        if (datetime.date.today() - data_crea).days > 365:
+                            st.error("🚨 Il tuo abbonamento Nexa Platform è scaduto dopo 12 mesi. Contatta info@arteq.it per il rinnovo.")
+                            accesso_consentito = False
+                except:
+                    pass # Se il DB non ha ancora i campi pronti, lo facciamo entrare per sicurezza
+            
+            if acceso_consentito:
+                st.session_state.autenticato = True
+                st.session_state.utente_attuale = user_input
+                st.session_state.azienda_attuale = risultato[1]
+                st.rerun()
         else:
             st.error("❌ Credenziali errate. Riprova.")
     st.markdown("</div></div>", unsafe_allow_html=True)
-    st.stop()
 
 # --- 4. STILE DASHBOARD REALE ---
 st.markdown("""
@@ -588,50 +617,108 @@ def invia_email_onboarding(email_destinatario, nome_cliente, username_generato, 
         st.sidebar.error(f"Dettaglio tecnico errore: {str(e)}")
         return False
         
-    # --- 12. INTERFACCIA DI AMMINISTRAZIONE E INVIO ONBOARDING ---
-if st.session_state.autenticato and st.session_state.utente_attuale.lower() in ['arteq', 'monica']:
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("### ⚙️ Amministrazione Nexa")
-    st.sidebar.markdown("#### 📧 Onboarding Nuovo Cliente")
-    
-    # Campi di inserimento nella sidebar
-    nuovo_nome = st.sidebar.text_input("Ragione Sociale / Nome Partner", placeholder="Es. Nexa Control")
-    nuova_email = st.sidebar.text_input("Email di Destinazione", placeholder="Es. amministrazione@clienti.it")
-    
-    # Generazione automatica di credenziali suggerite (modificabili)
-    suggerimento_user = nuovo_nome.lower().replace(" ", "").replace(".", "")[:10] if nuovo_nome else ""
-    nuovo_username = st.sidebar.text_input("Username Account", value=suggerimento_user, placeholder="Username per il login")
-    nuova_password = st.sidebar.text_input("Password Temporanea", value="nexa2026!", placeholder="Password iniziale")
+   # --- 12. INTERFACCIA AMMINISTRAZIONE, GESTIONE LICENZE (12 MESI) & CANCELLAZIONE ---
+import datetime
 
-    if st.sidebar.button("🚀 GENERA ACCOUNT E INVIA MAIL", use_container_width=True):
-        if nuovo_nome and nuova_email and nuovo_username and nuova_password:
-            with st.sidebar.spinner("Creazione account e cifratura email in corso..."):
-                
-                # 1. Salviamo il nuovo utente nel database sqlite per permettergli il login futuro
-                try:
-                    esegui_query(
-                        "INSERT OR REPLACE INTO utenti (username, password, azienda) VALUES (?, ?, ?)",
-                        (nuovo_username, nuova_password, nuovo_nome)
-                    )
-                    db_salvato = True
-                except Exception as db_err:
-                    st.sidebar.error(f"❌ Errore Database: {str(db_err)}")
-                    db_salvato = False
-                
-                # 2. Se il database è aggiornato, facciamo partire la notifica via SMTP
-                if db_salvato:
-                    # CORRETTO QUI: password_generata specchia esattamente il blocco 11
-                    invio_successo = invia_email_onboarding(
-                        email_destinatario=nuova_email,
-                        nome_cliente=nuovo_nome,
-                        username_generato=nuovo_username,
-                        password_generata=nuova_password
-                    )
+if st.session_state.autenticato and st.session_state.utente_attuale.lower() in ['arteq', 'monica']:
+    st.markdown("---")
+    st.markdown("## ⚙️ Pannello di Controllo Licenze & Onboarding")
+    
+    # Creiamo due Tab per dividere la creazione dalla gestione senza fare confusione
+    tab_crea, tab_gestisci = st.tabs(["🚀 Attiva Nuovo Partner", "👥 Gestione & Revoca Licenze"])
+    
+    with tab_crea:
+        st.markdown("### 📧 Onboarding Nuovo Cliente")
+        col1, col2 = st.columns(2)
+        with col1:
+            nuovo_nome = st.text_input("Ragione Sociale / Nome Partner", placeholder="Es. Nexa Enterprise S.r.l.", key="add_nome")
+            nuova_email = st.text_input("Email di Destinazione", placeholder="Es. info@nexaplatform.it", key="add_email")
+        with col2:
+            suggerimento_user = nuovo_nome.lower().replace(" ", "").replace(".", "")[:10] if nuovo_nome else ""
+            nuovo_username = st.text_input("Username Account", value=suggerimento_user, placeholder="Username per il login", key="add_user")
+            nuova_password = st.text_input("Password Temporanea", value="nexa2026!", placeholder="Password iniziale", key="add_pass")
+
+        if st.button("🚀 GENERA ACCOUNT E INVIA MAIL", use_container_width=True):
+            if nuovo_nome and nuova_email and nuovo_username and nuova_password:
+                with st.spinner("Creazione profilo e configurazione licenza 12 mesi..."):
                     
-                    if invio_successo:
-                        st.sidebar.success(f"✅ Account `{nuovo_username}` attivato! Email inviata a {nuova_email}.")
-                    else:
-                        st.sidebar.warning(f"⚠️ Account creato nel DB, ma configura i dati SMTP reali nel blocco 11 per l'invio della mail.")
-        else:
-            st.sidebar.error("❌ Compila tutti i campi prima di procedere.")
+                    data_odierna = datetime.date.today().strftime("%Y-%m-%d")
+                    
+                    # Proviamo a inserire con i campi data per la licenza
+                    try:
+                        esegui_query(
+                            "INSERT OR REPLACE INTO utenti (username, password, azienda, email, data_creazione, stato_licenza) VALUES (?, ?, ?, ?, ?, ?)",
+                            (nuovo_username, nuova_password, nuovo_nome, nuova_email, data_odierna, "ATTIVO")
+                        )
+                        db_salvato = True
+                    except Exception as e:
+                        # Se le colonne non esistono nel DB, le creiamo al volo (Migrazione automatica)
+                        try:
+                            esegui_query("ALTER TABLE utenti ADD COLUMN email TEXT")
+                            esegui_query("ALTER TABLE utenti ADD COLUMN data_creazione TEXT")
+                            esegui_query("ALTER TABLE utenti ADD COLUMN stato_licenza TEXT")
+                            esegui_query(
+                                "INSERT OR REPLACE INTO utenti (username, password, azienda, email, data_creazione, stato_licenza) VALUES (?, ?, ?, ?, ?, ?)",
+                                (nuovo_username, nuova_password, nuovo_nome, nuova_email, data_odierna, "ATTIVO")
+                            )
+                            db_salvato = True
+                        except:
+                            st.error("Errore nell'aggiornamento delle tabelle del Database.")
+                            db_salvato = False
+                    
+                    if db_salvato:
+                        invio_successo = invia_email_onboarding(nuova_email, nuovo_nome, nuovo_username, nuova_password)
+                        if invio_successo:
+                            st.success(f"✅ Licenza di 12 mesi attivata per `{nuovo_username}`! Email inviata.")
+                            st.rerun()
+    
+    with tab_gestisci:
+        st.markdown("### 🛠️ Monitoraggio Scadenze e Revoca Accessi")
+        
+        try:
+            # Estraiamo i dati degli utenti inclusa la data di creazione
+            df_utenti = esegui_query("SELECT username, azienda, email, data_creazione, stato_licenza FROM utenti WHERE username NOT IN ('arteq', 'monica')", ritorna_df=True)
+            
+            if not df_utenti.empty:
+                for index, row in df_utenti.iterrows():
+                    user_client = row['username']
+                    azienda_client = row['azienda']
+                    email_client = row['email']
+                    data_crea_str = row['data_creazione'] if row['data_creazione'] else "2026-05-30"
+                    stato_lic = row['stato_licenza'] if row['stato_licenza'] else "ATTIVO"
+                    
+                    # Calcolo dei mesi passati e rimanenti
+                    try:
+                        data_crea = datetime.datetime.strptime(data_crea_str, "%Y-%m-%d").date()
+                        data_scadenza = data_crea + datetime.timedelta(days=365)
+                        giorni_rimanenti = (data_scadenza - datetime.date.today()).days
+                        mesi_rimanenti = max(0, int(giorni_rimanenti / 30))
+                    except:
+                        mesi_rimanenti = 12
+                        giorni_rimanenti = 365
+                    
+                    # Disegno della card utente con gestione spazio
+                    c1, c2, c3, c4 = st.columns([2, 3, 2, 1])
+                    with c1:
+                        st.markdown(f"**{azienda_client}** \n`User: {user_client}`")
+                    with c2:
+                        st.markdown(f"📧 {email_client}")
+                    with c3:
+                        if giorni_rimanenti <= 0:
+                            st.error("🚨 SCADUTA (0 gg)")
+                        elif giorni_rimanenti <= 30:
+                            st.warning(f"⏳ Scade tra {giorni_rimanenti} gg")
+                        else:
+                            st.success(f"🟢 Attiva ({mesi_rimanenti} mesi rimasti)")
+                    with c4:
+                        # Pulsante di cancellazione sicura con chiave univoca
+                        if st.button("🗑️", key=f"del_{user_client}", help=f"Elimina definitivamente {azienda_client}"):
+                            esegui_query("DELETE FROM utenti WHERE username = ?", (user_client,))
+                            st.toast(f"❌ Account di {azienda_client} eliminato dal server!", icon="🗑️")
+                            st.rerun()
+                    st.markdown("---")
+            else:
+                st.info("ℹ️ Nessun partner esterno registrato nel sistema.")
+        except Exception as err:
+            st.error(f"Errore caricamento lista: {str(err)}")
 
