@@ -531,11 +531,13 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 def invia_email_onboarding(email_destinatario, nome_cliente, username_generato, password_generata):
-    # PARAMETRI CONFIGURATI PER MICROSOFT OUTLOOK / OFFICE 365
-    SMTP_SERVER = "smtp.office365.com"  # Server ufficiale Microsoft
-    SMTP_PORT = 587                     # Porta standard per connessione STARTTLS
-    EMAIL_MITTENTE = "info@arteq.it"    # La tua mail di Outlook
-    PASSWORD_APPLICAZIONE = "cklkgllflhdpfqbw" # La tua password per l'app generata da Microsoft
+    # PARAMETRI CONFIGURATI PER SMTP DIRETTO (BREVO)
+    SMTP_SERVER = "smtp-relay.brevo.com" # Server SMTP ultra-veloce di Brevo
+    SMTP_PORT = 587                      # Porta di connessione sicura standard
+    EMAIL_MITTENTE = "info@arteq.it"    # Il tuo indirizzo ufficiale (visualizzato dal cliente)
+    
+    # INCOLLA QUI LA CHIAVE GENERATA SU BREVO (es. "xsmtpsib-...")
+    PASSWORD_APPLICAZIONE = "INSERISCI_QUI_LA_CHIAVE_SMTP_DI_BREVO" 
     
     # Costruzione del messaggio in HTML elegante e coordinato
     messaggio = MIMEMultipart()
@@ -573,17 +575,15 @@ def invia_email_onboarding(email_destinatario, nome_cliente, username_generato, 
     messaggio.attach(MIMEText(corpo_html, "html"))
     
     try:
-        # CONNESSIONE OTTIMIZZATA PER OUTLOOK AZIENDALE
         server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-        server.ehlo() # Identifica il software Nexa al server Microsoft
-        server.starttls() # Attiva la crittografia richiesta da Office 365
+        server.ehlo()
+        server.starttls()
         server.ehlo()
         server.login(EMAIL_MITTENTE, PASSWORD_APPLICAZIONE)
         server.sendmail(EMAIL_MITTENTE, email_destinatario, messaggio.as_string())
         server.quit()
         return True
     except Exception as e:
-        # Questo serve a noi per vedere l'errore reale nei log di Streamlit se fallisce ancora
         st.sidebar.error(f"Dettaglio tecnico errore: {str(e)}")
         return False
         
