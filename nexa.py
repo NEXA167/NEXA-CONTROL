@@ -573,15 +573,18 @@ def invia_email_onboarding(email_destinatario, nome_cliente, username_generato, 
     messaggio.attach(MIMEText(corpo_html, "html"))
     
     try:
-        # CHIUSETURA MOTORE SMTP (Mancava questo pezzo per far partire il comando reale)
+        # CONNESSIONE OTTIMIZZATA PER OUTLOOK AZIENDALE
         server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-        server.starttls()
+        server.ehlo() # Identifica il software Nexa al server Microsoft
+        server.starttls() # Attiva la crittografia richiesta da Office 365
+        server.ehlo()
         server.login(EMAIL_MITTENTE, PASSWORD_APPLICAZIONE)
         server.sendmail(EMAIL_MITTENTE, email_destinatario, messaggio.as_string())
         server.quit()
         return True
     except Exception as e:
-        print(f"Errore reale di invio: {str(e)}")
+        # Questo serve a noi per vedere l'errore reale nei log di Streamlit se fallisce ancora
+        st.sidebar.error(f"Dettaglio tecnico errore: {str(e)}")
         return False
         
     # --- 12. INTERFACCIA DI AMMINISTRAZIONE E INVIO ONBOARDING ---
