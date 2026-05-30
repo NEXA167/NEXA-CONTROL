@@ -366,17 +366,20 @@ if not df_attivi.empty:
     df_cashflow['Uscite Totali Mese'] = df_cashflow['Costi Variabili'] + df_cashflow['Costi Fissi (Fornitori)'] + df_cashflow['Mutui e Leasing']
     df_cashflow['Flusso Cassa Netto'] = df_cashflow['Fatturato'] - df_cashflow['Uscite Totali Mese']
     
-    # Calcolo Opzione B: Cassa Netta Generata da inizio anno + Finanziamenti Extra Inseriti
-    cassa_generata_totale = df_cashflow['Flusso Cassa Netto'].sum()
+    # Formula Evoluta: Margine di contribuzione monetario medio mensile (Entrate - Acquisti Componenti)
+    margine_contribuzione_medio = (df_cashflow['Fatturato'].mean() - df_cashflow['Costi Variabili'].mean())
     finanziamenti_ricevuti_totale = df_cashflow['finanziamenti_extra'].sum() if 'finanziamenti_extra' in df_cashflow.columns else 0.0
-    cassa_disponibile_calcolata = cassa_generata_totale + finanziamenti_ricevuti_totale
     
-    # SANIFICAZIONE DENOMINATORE: Se l'ultimo costo fisso è 0, prendiamo la media dei costi fissi storici, altrimenti usiamo 1.0 per evitare divisioni per zero
-    costo_struttura_riferimento = ultimo_costo_fisso
-    if costo_struttura_riferimento == 0:
-        costo_struttura_riferimento = df_cashflow['Costi Fissi (Fornitori)'].mean() if df_cashflow['Costi Fissi (Fornitori)'].mean() > 0 else 1.0
+    # Denominatore sicuro per i costi fisici della struttura
+    costo_struttura_riferimento = ultimo_costo_fisso if ultimo_costo_fisso > 0 else (df_cashflow['Costi Fissi (Fornitori)'].mean() if df_cashflow['Costi Fissi (Fornitori)'].mean() > 0 else 1.0)
+    
+    # Calcolo dinamico: se hai inserito un finanziamento extra, l'autonomia salta subito su basandosi sulla nuova liquidità inserita!
+    if finanziamenti_ricevuti_totale > 0:
+        mesi_autonomia = finanziamenti_ricevuti_totale / costo_struttura_riferimento
+    else:
+        # Altrimenti calcola l'autonomia strutturale basata sulla capacità del tuo margine operativo di coprire i costi fissi
+        mesi_autonomia = margine_contribuzione_medio / costo_struttura_riferimento
         
-    mesi_autonomia = cassa_disponibile_calcolata / costo_struttura_riferimento
     if mesi_autonomia < 0: mesi_autonomia = 0.0
 
     tot_acquisti = df_cashflow['Costi Variabili'].sum()
@@ -398,9 +401,9 @@ if not df_attivi.empty:
             
         st.markdown(f"""
             <div style='background-color:#F8FAFC; padding:12px; border-radius:8px; border:1px solid #E2E8F0; border-left:5px solid {colore_aut};'>
-                <p style='color:#64748B; font-size:11px; font-weight:700; text-transform:uppercase; margin:0;'>🛡️ Autonomia Struttura (Cassa Netta + Finanziamenti)</p>
+                <p style='color:#64748B; font-size:11px; font-weight:700; text-transform:uppercase; margin:0;'>🛡️ Autonomia Struttura (Capacità di Copertura Costi)</p>
                 <h3 style='color:{colore_aut}; margin:4px 0; font-size:18px;'>{mesi_autonomia:.1f} Mesi ({stato_aut})</h3>
-                <p style='color:#475569; font-size:11px; margin:0;'>Autonomia stimata integrando la liquidità generata e i crediti esterni accreditati.</p>
+                <p style='color:#475569; font-size:11px; margin:0;'>Indica quanti mesi di spese fisse di struttura sono coperti dal margine o dalla liquidità extra immessa.</p>
             </div>
         """, unsafe_allow_html=True)
         
