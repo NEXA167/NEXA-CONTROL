@@ -429,8 +429,9 @@ with col_p2:
 with col_p3:
     # ℹ️ AGGIUNTO TOOLTIP SUL RADAR PREVENTIVO
     st.markdown("<div class='titolo-grafico-libero'>3. Radar Cassa & Allerta Predittiva</div>", unsafe_allow_html=True)
-    st.caption("ℹ️ *Passa col mouse qui sotto per i dettagli*", help="Algoritmo predittivo a 30 giorni. Calcola la cassa stimata del mese prossimo incrociando il saldo banca attuale con le scadenze attive inserite in fatturazione, sottraendo i costi di struttura venturi.")
-    
+    st.caption("ℹ️ *Passa col mouse qui sotto per i dettagli*", 
+               help="Strumento di controllo predittivo conforme alle direttive CCII. Calcola la sostenibilità finanziaria a 30 giorni e l'indice DSCR, incrociando la cassa attuale e gli incassi futuri con le uscite di struttura e i debiti finanziari (Leasing/Rateizzazioni) per prevenire stati di crisi.")
+        
     if 'scadenze_attive' in df_attivi.columns and (ultime_scadenze > 0 or ultime_rateizzazioni > 0):
         # ... (il resto del codice del radar predittivo rimane identico) ...
         if cassa_previsionale >= 0:
