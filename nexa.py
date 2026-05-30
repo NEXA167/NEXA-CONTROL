@@ -366,19 +366,24 @@ if not df_attivi.empty:
     df_cashflow['Uscite Totali Mese'] = df_cashflow['Costi Variabili'] + df_cashflow['Costi Fissi (Fornitori)'] + df_cashflow['Mutui e Leasing']
     df_cashflow['Flusso Cassa Netto'] = df_cashflow['Fatturato'] - df_cashflow['Uscite Totali Mese']
     
-    # Ricalcolo dinamico Opzione B: Flusso cumulato + Finanziamenti Extra
+    # Calcolo Opzione B: Cassa Netta Generata da inizio anno + Finanziamenti Extra Inseriti
     cassa_generata_totale = df_cashflow['Flusso Cassa Netto'].sum()
     finanziamenti_ricevuti_totale = df_cashflow['finanziamenti_extra'].sum() if 'finanziamenti_extra' in df_cashflow.columns else 0.0
     cassa_disponibile_calcolata = cassa_generata_totale + finanziamenti_ricevuti_totale
     
-    mesi_autonomia = cassa_disponibile_calcolata / ultimo_costo_fisso if ultimo_costo_fisso > 0 else 0.0
+    # SANIFICAZIONE DENOMINATORE: Se l'ultimo costo fisso è 0, prendiamo la media dei costi fissi storici, altrimenti usiamo 1.0 per evitare divisioni per zero
+    costo_struttura_riferimento = ultimo_costo_fisso
+    if costo_struttura_riferimento == 0:
+        costo_struttura_riferimento = df_cashflow['Costi Fissi (Fornitori)'].mean() if df_cashflow['Costi Fissi (Fornitori)'].mean() > 0 else 1.0
+        
+    mesi_autonomia = cassa_disponibile_calcolata / costo_struttura_riferimento
     if mesi_autonomia < 0: mesi_autonomia = 0.0
 
     tot_acquisti = df_cashflow['Costi Variabili'].sum()
     tot_fatturato = df_cashflow['Fatturato'].sum()
     incidenza_acquisti_pct = (tot_acquisti / tot_fatturato * 100) if tot_fatturato > 0 else 0.0
 
-    # Generazione dei due Badge Strategici superiori
+    # Badge Superiori
     badge_col1, badge_col2 = st.columns(2)
     with badge_col1:
         if mesi_autonomia >= 2.0:
@@ -419,6 +424,7 @@ if not df_attivi.empty:
         """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
+    
     # Contenitore Collassabile (Espandibile) unico per i dettagli
     with st.expander("🔍 Clicca qui per espandere il dettaglio mensile e l'analisi sovra-approvvigionamento"):
         condizioni = [
