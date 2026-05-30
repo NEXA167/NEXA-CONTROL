@@ -524,3 +524,108 @@ st.dataframe(
     },
     hide_index=True, use_container_width=True
 )
+
+# --- 11. MOTORE DI AUTOMAZIONE COMUNICAZIONE & EMAIL ---
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+def invia_email_onboarding(email_destinatario, nome_cliente, username_generato, password_generata):
+    # Parametri di configurazione del server SMTP (da valorizzare con i tuoi dati reali)
+    SMTP_SERVER = "smtp.gmail.com" # O il provider della tua azienda
+    SMTP_PORT = 587
+    EMAIL_MITTENTE = "il_tuo_indirizzo_nexa@gmail.com"
+    PASSWORD_APPLICAZIONE = "xxxx xxxx xxxx xxxx" # Password applicazione sicura di Google
+    
+    # Costruzione del messaggio in HTML elegante e coordinato
+    messaggio = MIMEMultipart()
+    messaggio["From"] = f"Nexa Control <{EMAIL_MITTENTE}>"
+    messaggio["To"] = email_destinatario
+    messaggio["Subject"] = f"🚀 Benvenuto in Nexa Platform — Attivazione Account per {nome_cliente}"
+    
+    corpo_html = f"""
+    <html>
+        <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1E293B; background-color: #F8FAFC; padding: 20px;">
+            <div style="max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 8px; border: 1px solid #E2E8F0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                <div style="background-color: #0F172A; padding: 24px; text-align: center;">
+                    <h1 style="color: #FFFFFF; margin: 0; font-size: 24px; letter-spacing: -0.5px;">🚀 NEXA CONTROL</h1>
+                </div>
+                <div style="padding: 32px;">
+                    <p style="font-size: 16px; line-height: 1.5; margin-top: 0;">Gentile <b>{nome_cliente}</b>,</p>
+                    <p style="font-size: 14px; line-height: 1.5; color: #475569;">Il tuo profilo di controllo aziendale sulla piattaforma Nexa SaaS è stato attivato con successo dal reparto amministrativo.</p>
+                    
+                    <div style="background-color: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 6px; padding: 16px; margin: 24px 0;">
+                        <h4 style="margin: 0 0 10px 0; color: #1E3A8A; font-size: 14px; text-transform: uppercase;">🔒 Le tue credenziali di accesso blindate:</h4>
+                        <p style="margin: 4px 0; font-size: 14px;"><b>Username:</b> <code style="background-color: #FFFFFF; padding: 2px 6px; border-radius: 4px; border: 1px solid #CBD5E1;">{username_generato}</code></p>
+                        <p style="margin: 4px 0; font-size: 14px;"><b>Password temporanea:</b> <code style="background-color: #FFFFFF; padding: 2px 6px; border-radius: 4px; border: 1px solid #CBD5E1;">{password_generata}</code></p>
+                    </div>
+                    
+                    <p style="font-size: 13px; color: #64748B; line-height: 1.5;"><i>Consiglio di sicurezza: al primo accesso ti verrà richiesto di aggiornare la password temporanea per garantire la massima protezione del server predittivo.</i></p>
+                    
+                    <hr style="border: 0; border-top: 1px solid #E2E8F0; margin: 32px 0;">
+                    <p style="font-size: 12px; color: #94A3B8; text-align: center; margin: 0;">Nexa SaaS Platform — Servizi di Monitoraggio e Pianificazione di Scalabilità d'Impresa</p>
+                </div>
+            </div>
+        </body>
+    </html>
+    """
+    
+    messaggio.attach(MIMEText(corpo_html, "html"))
+    
+    try:
+        # Connessione sicura al server SMTP ed invio reale
+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+        server.starttls()
+        server.login(EMAIL_MITTENTE, PASSWORD_APPLICAZIONE)
+        server.sendmail(EMAIL_MITTENTE, email_destinatario, messaggio.as_string())
+        server.quit()
+        return True
+    except Exception as e:
+        print(f"Errore di invio email: {str(e)}")
+        return False
+    # --- 12. INTERFACCIA DI AMMINISTRAZIONE E INVIO ONBOARDING ---
+if st.session_state.autenticato and st.session_state.utente_attuale in ['arteq', 'monica']:
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("### ⚙️ Amministrazione Nexa")
+    st.sidebar.markdown("#### 📧 Onboarding Nuovo Cliente")
+    
+    # Campi di inserimento nella sidebar
+    nuovo_nome = st.sidebar.text_input("Ragione Sociale / Nome Partner", placeholder="Es. Gricaf S.r.l.")
+    nuova_email = st.sidebar.text_input("Email di Destinazione", placeholder="Es. amministrazione@clienti.it")
+    
+    # Generazione automatica di credenziali suggerite (modificabili)
+    suggerimento_user = nuovo_nome.lower().replace(" ", "").replace(".", "")[:10] if nuovo_nome else ""
+    nuovo_username = st.sidebar.text_input("Username Account", value=suggerimento_user, placeholder="Username per il login")
+    nuova_password = st.sidebar.text_input("Password Temporanea", value="nexa2026!", placeholder="Password iniziale")
+
+    if st.sidebar.button("🚀 GENERA ACCOUNT E INVIA MAIL", use_container_width=True):
+        if nuovo_nome and nuova_email and nuovo_username and nuova_password:
+            with st.sidebar.spinner("Creazione account e cifratura email in corso..."):
+                
+                # 1. Salviamo il nuovo utente nel database sqlite per permettergli il login futuro
+                try:
+                    esegui_query(
+                        "INSERT OR REPLACE INTO utenti (username, password, azienda) VALUES (?, ?, ?)",
+                        (nuovo_username, nuova_password, nuovo_nome)
+                    )
+                    db_salvato = True
+                except Exception as db_err:
+                    st.sidebar.error(f"❌ Errore Database: {str(db_err)}")
+                    db_salvato = False
+                
+                # 2. Se il database è aggiornato, facciamo partire la notifica via SMTP
+                if db_salvato:
+                    invio_successo = invia_email_onboarding(
+                        email_destinatario=nuova_email,
+                        nome_cliente=nuovo_nome,
+                        username_generato=nuovo_username,
+                        password_generated=nuova_password
+                    )
+                    
+                    if invio_successo:
+                        st.sidebar.success(f"✅ Account `{nuovo_username}` attivato! Email di onboarding inviata a {nuova_email}.")
+                    else:
+                        st.sidebar.warning(f"⚠️ Account creato nel DB, ma il server SMTP ha rifiutato l'invio. Verifica le credenziali SMTP nel codice.")
+        else:
+            st.sidebar.error("❌ Compila tutti i campi prima di procedere.")
+
