@@ -360,9 +360,13 @@ st.markdown("<br><br>", unsafe_allow_html=True)
 col_p1, col_p2, col_p3 = st.columns(3)
 
 with col_p1:
+    # ℹ️ AGGIUNTO TOOLTIP SUL BEP
     st.markdown("<div class='titolo-grafico-libero'>1. Punto di Pareggio (BEP)</div>", unsafe_allow_html=True)
+    st.caption("ℹ️ *Passa col mouse qui sotto per i dettagli*", help="Tachimetro di sostenibilità aziendale. Mostra il fatturato medio reale generato (Arco Scuro) messo a confronto con la soglia matematica di pareggio (Linea Blu) necessaria a coprire tutti i costi fissi e di struttura.")
+    
     if media_fatturato > 0 or punto_pareggio_medio > 0:
         valore_max = max(punto_pareggio_medio * 1.5, media_fatturato * 1.2, 50000)
+        # ... (il resto del codice del gauge rimane identico) ...
         fig_gauge = go.Figure(go.Indicator(
             mode = "gauge+number", 
             value = media_fatturato,
@@ -407,8 +411,12 @@ with col_p1:
         st.info("📥 Inserisci i dati mensili per attivare il tachimetro.")
 
 with col_p2:
+    # ℹ️ AGGIUNTO TOOLTIP SUL MAGAZZINO
     st.markdown("<div class='titolo-grafico-libero'>2. Monitor del Magazzino</div>", unsafe_allow_html=True)
+    st.caption("ℹ️ *Passa col mouse qui sotto per i dettagli*", help="Rappresenta il valore monetario delle merci e dei componenti attualmente stoccati. Viene diagnosticato come 'Capitale Dormiente' poiché sono soldi momentaneamente immobilizzati che non stanno generando liquidità attiva.")
+    
     fig_mag = go.Figure()
+    # ... (il resto del codice del magazzino rimane identico) ...
     fig_mag.add_trace(go.Indicator(
         mode = "number", value = magazzino_attuale,
         number = {'prefix': "€ ", 'valueformat': ",.2f", 'font': {'size': 38, 'color': '#0F172A'}},
@@ -419,9 +427,12 @@ with col_p2:
     st.markdown("<p style='text-align:center; color:#64748B; font-size:12px; font-weight:600; margin-top:10px;'>Capitale Dormiente Attuale</p>", unsafe_allow_html=True)
 
 with col_p3:
+    # ℹ️ AGGIUNTO TOOLTIP SUL RADAR PREVENTIVO
     st.markdown("<div class='titolo-grafico-libero'>3. Radar Cassa & Allerta Predittiva</div>", unsafe_allow_html=True)
+    st.caption("ℹ️ *Passa col mouse qui sotto per i dettagli*", help="Algoritmo predittivo a 30 giorni. Calcola la cassa stimata del mese prossimo incrociando il saldo banca attuale con le scadenze attive inserite in fatturazione, sottraendo i costi di struttura venturi.")
     
     if 'scadenze_attive' in df_attivi.columns and (ultime_scadenze > 0 or ultime_rateizzazioni > 0):
+        # ... (il resto del codice del radar predittivo rimane identico) ...
         if cassa_previsionale >= 0:
             st.success(f"🟢 CASSA PREVISTA 30GG: OK\n\nSaldo stimato: € {cassa_previsionale:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.'))
             st.markdown("<p style='font-size:12px; color:#64748B; margin-top:5px;'>Gli incassi futuri coprono interamente le scadenze e i costi di struttura del prossimo mese.</p>", unsafe_allow_html=True)
