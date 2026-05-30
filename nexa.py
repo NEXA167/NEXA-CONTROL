@@ -77,16 +77,34 @@ if not st.session_state.autenticato:
         .stApp { background-color: #EBF0F5 !important; } 
         .login-minimal-container { max-width: 530px; margin: 120px auto; text-align: center; }
         
-        /* 👁️ NUOVA REGOLA: SPARIRE BARRA DI CONDIVISIONE STREAMLIT */
+        /* 👁️ 1. CANCELLAZIONE TOTALE BARRA SUPERIORE STREAMLIT */
         header[data-testid="stHeader"] {
             visibility: hidden;
-            height: 0%;
-            background: rgba(0,0,0,0);
+            height: 0px !important;
+            display: none !important;
         }
-        footer { visibility: hidden; }
-        #MainMenu { visibility: hidden; }
         
-        .login-title-minimal { color: #0F172A; font-size: 41px; font-weight: 800; letter-spacing: -0.5px; margin: 0; text-align: center !important; display: block; width: 100%; }
+        /* 👁️ 2. COLPO DI SPUGNA: ELIMINAZIONE TASTO NERO MANAGE APP E LOG IN BASSO */
+        div[data-testid="stAppDeployDocsWrapper"], 
+        footer, 
+        #MainMenu, 
+        iframe[title="Sign in with Google"] { 
+            visibility: hidden !important; 
+            display: none !important; 
+        }
+        
+        /* Forza il blocco di qualsiasi elemento fluttuante di Streamlit in basso a destra */
+        .stDeployButton, div[class*="stDeployButton"], button[id*="manage-app"] {
+            display: none !important;
+            visibility: hidden !important;
+        }
+        
+        /* 🎯 3. RIPRISTINO CENTRATURA ASSOLUTA E SIMMETRIA TEXT */
+        .login-title-minimal { color: #0F172A; font-size: 41px; font-weight: 800; letter-spacing: -0.5px; margin: 0 auto 10px auto; text-align: center !important; display: block; width: 100%; }
+        .login-subtitle-minimal { color: #64748B; font-size: 15px; margin: 0 auto 40px auto; text-align: center !important; display: block; width: 100%; }
+        .field-label-minimal { color: #0F172A !important; font-size: 19px; font-weight: 700; text-align: center !important; margin-bottom: 6px; margin-top: 25px; display: block; width: 100%; }
+        
+        div[data-testid="stTextInput"] { width: 55% !important; margin: 0 auto !important; }
         
         /* Uniformiamo i box d'inserimento bianchi puliti */
         div[data-baseweb="input"] { border: 2px solid #CBD5E1 !important; border-radius: 8px !important; background-color: #FFFFFF !important; }
@@ -107,16 +125,12 @@ if not st.session_state.autenticato:
         
     st.markdown("<div class='login-minimal-container'>", unsafe_allow_html=True)
     st.markdown("<h1 class='login-title-minimal'>🚀 NEXA CONTROL</h1>", unsafe_allow_html=True)
+    st.markdown("<p class='login-subtitle-minimal'>Pannello di Accesso Server Predittivo</p>", unsafe_allow_html=True)
     
-    # MODIFICATO QUI: Forzata la centratura del sottotitolo
-    st.markdown("<p style='color: #64748B; font-size: 15px; margin-bottom: 40px; text-align: center !important; display: block; width: 100%;'>Pannello di Accesso Server Predittivo</p>", unsafe_allow_html=True)
-    
-    # MODIFICATO QUI: Forzata la centratura del testo USERNAME
-    st.markdown("<p style='color: #0F172A; font-size: 19px; font-weight: 700; text-align: center !important; margin-bottom: 6px; margin-top: 25px; display: block; width: 100%;'>👤 USERNAME</p>", unsafe_allow_html=True)
+    st.markdown("<p class='field-label-minimal'>👤 USERNAME</p>", unsafe_allow_html=True)
     user_input = st.text_input("nexa_field_usr_secure_gate", label_visibility="collapsed", autocomplete="off").strip().lower()
     
-    # MODIFICATO QUI: Forzata la centratura del testo PASSWORD
-    st.markdown("<p style='color: #0F172A; font-size: 19px; font-weight: 700; text-align: center !important; margin-bottom: 6px; margin-top: 25px; display: block; width: 100%;'>🔒 PASSWORD</p>", unsafe_allow_html=True)
+    st.markdown("<p class='field-label-minimal'>🔒 PASSWORD</p>", unsafe_allow_html=True)
     st.markdown("<div class='scudo-password-input'>", unsafe_allow_html=True)
     pass_input = st.text_input("nexa_field_pwd_secure_gate", label_visibility="collapsed", autocomplete="off", type="password")
     st.markdown("</div>", unsafe_allow_html=True)
