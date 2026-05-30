@@ -531,11 +531,11 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 def invia_email_onboarding(email_destinatario, nome_cliente, username_generato, password_generata):
-    # Parametri di configurazione del server SMTP (da valorizzare con i tuoi dati reali)
-    SMTP_SERVER = "smtp.gmail.com" # O il provider della tua azienda
-    SMTP_PORT = 587
-    EMAIL_MITTENTE = "il_tuo_indirizzo_nexa@gmail.com"
-    PASSWORD_APPLICAZIONE = "xxxx xxxx xxxx xxxx" # Password applicazione sicura di Google
+    # PARAMETRI CONFIGURATI PER MICROSOFT OUTLOOK / OFFICE 365
+    SMTP_SERVER = "smtp.office365.com"  # Server ufficiale Microsoft
+    SMTP_PORT = 587                     # Porta standard per connessione STARTTLS
+    EMAIL_MITTENTE = "info@arteq.it"  # La tua mail di Outlook o quella aziendale di Monica (es. amministrazione@...)
+    PASSWORD_APPLICAZIONE = "cklkgllflhdpfqbw" # La password per l'app generata da Microsoft
     
     # Costruzione del messaggio in HTML elegante e coordinato
     messaggio = MIMEMultipart()
