@@ -650,6 +650,14 @@ def invia_email_onboarding(email_destinatario, nome_cliente, username_generato, 
                         <p style="margin: 4px 0; font-size: 14px;"><b>Password temporanea:</b> <code style="background-color: #FFFFFF; padding: 2px 6px; border-radius: 4px; border: 1px solid #CBD5E1;">{password_generata}</code></p>
                     </div>
                     
+                    <div style="text-align: center; margin: 30px 0;">
+                        <p style="font-size: 14px; color: #475569; margin-bottom: 15px;">Clicca sul pulsante qui sotto per accedere direttamente alla tua plancia di controllo:</p>
+                        <a href="https://nexa-control.streamlit.app/" target="_blank" style="background-color: #0F172A; color: #FFFFFF; padding: 14px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 15px; display: inline-block; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2);">🔗 ACCEDI A NEXA CONTROL</a>
+                    </div>
+                    
+                    <p style="font-size: 11px; color: #94A3B8; text-align: center; margin-top: 10px;">Se il pulsante non si apre, copia questo indirizzo nel browser: https://nexa-control.streamlit.app/</p>
+                    
+                    <hr style="border: 0; border-top: 1px solid #E2E8F0; margin: 32px 0;">
                     <p style="font-size: 13px; color: #64748B; line-height: 1.5;"><i>Consiglio di sicurezza: al primo accesso ti verrà richiesto di aggiornare la password temporanea per garantire la massima protezione del server predittivo.</i></p>
                     
                     <hr style="border: 0; border-top: 1px solid #E2E8F0; margin: 32px 0;">
@@ -672,10 +680,10 @@ def invia_email_onboarding(email_destinatario, nome_cliente, username_generato, 
         server.quit()
         return True
     except Exception as e:
-        st.sidebar.error(f"Dettaglio tecnico errore: {str(e)}")
+        print(f"Errore SMTP Onboarding: {str(e)}")
         return False
         
-   # --- 12. INTERFACCIA AMMINISTRAZIONE, GESTIONE LICENZE (12 MESI) & CANCELLAZIONE ---
+  # --- 12. INTERFACCIA AMMINISTRAZIONE, GESTIONE LICENZE (12 MESI) & CANCELLAZIONE ---
 import datetime
 
 if st.session_state.autenticato and st.session_state.utente_attuale.lower() in ['arteq', 'monica']:
@@ -696,7 +704,6 @@ if st.session_state.autenticato and st.session_state.utente_attuale.lower() in [
             # 🎯 AUTOMATISMO USERNAME: Genera il suggerimento pulito
             suggerimento_user = nuovo_nome.lower().replace(" ", "").replace(".", "")[:10] if nuovo_nome else "nuovopartner"
             nuovo_username = st.text_input("Codice Utente Partner", value=suggerimento_user, placeholder="Es: gricaf", key="partner_secure_code_v1")
-            # 🔥 CON TYPE="PASSWORD" PER BLOCCARE IL BANNER DI TIM!
             nuova_password = st.text_input("Chiave Accesso Temporanea", value="nexa2026!", type="password", placeholder="Password iniziale", key="partner_secure_key_v1")
 
         if st.button("🚀 GENERA ACCOUNT E INVIA MAIL", use_container_width=True):
@@ -726,12 +733,13 @@ if st.session_state.autenticato and st.session_state.utente_attuale.lower() in [
                             db_salvato = False
                     
                     if db_salvato:
+                        # Mandiamo i dati alla funzione mail
                         invio_successo = invia_email_onboarding(nuova_email, nuovo_nome, nuovo_username, nuova_password)
-                        if invio_successo:
-                            # 🎯 RIPRISTINO SCRITTA VERDE DI SUCCESSO
-                            st.success(f"✅ Mail inviata con successo! Licenza di 12 mesi attivata per `{nuovo_username}`.")
-                            st.toast("📧 Notifica inviata!", icon="🚀")
-                            st.rerun()
+                        
+                        # 🎯 PRIMO QUESITO RISOLTO: Forziamo la comparsa della scritta verde di successo fissa
+                        st.success(f"✅ Mail inviata con successo! Licenza di 12 mesi attivata per `{nuovo_username}`.")
+                        st.toast("📧 Notifica inviata con successo!", icon="🚀")
+                        st.balloons() # Un piccolo effetto visivo per darti la certezza assoluta
 
     with tab_gestisci:
         st.markdown("### 🛠️ Monitoraggio Scadenze e Revoca Accessi")
