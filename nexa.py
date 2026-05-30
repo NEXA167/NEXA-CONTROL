@@ -537,7 +537,7 @@ def invia_email_onboarding(email_destinatario, nome_cliente, username_generato, 
     EMAIL_MITTENTE = "info@arteq.it"    # Il tuo indirizzo ufficiale (visualizzato dal cliente)
     
     # INCOLLA QUI LA CHIAVE GENERATA SU BREVO (es. "xsmtpsib-...")
-    PASSWORD_APPLICAZIONE = "INSERISCI_QUI_LA_CHIAVE_SMTP_DI_BREVO" 
+    PASSWORD_APPLICAZIONE = "acfc3b001@smtp-brevo.com" 
     
     # Costruzione del messaggio in HTML elegante e coordinato
     messaggio = MIMEMultipart()
