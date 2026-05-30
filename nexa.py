@@ -531,17 +531,14 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 def invia_email_onboarding(email_destinatario, nome_cliente, username_generato, password_generata):
-    # PARAMETRI CONFIGURATI PER SMTP DIRETTO (BREVO)
+    # PARAMETRI CONFIGURATI DA SCREENSHOT REALE BREVO
     SMTP_SERVER = "smtp-relay.brevo.com" 
     SMTP_PORT = 587                      
     EMAIL_MITTENTE = "info@arteq.it"    # Il mittente che legge il cliente finale
     
-    # --- FOCUS BREVO ---
-    # Se la mail con cui hai creato l'account Brevo è DIVERSA da info@arteq.it, mettila qui sotto.
-    # Se invece è identica, lascia pure "info@arteq.it"
-    BREVO_USER_LOGIN = "LA_TUA_EMAIL_DI_REGISTRAZIONE_BREVO" 
-    
-    PASSWORD_APPLICAZIONE = "LA_TUA_CHIAVE_LUNGA_SMTP_BREVO"
+    # DATI PRESI DIRETTAMENTE DALLA TUA SCHERMATA:
+    BREVO_USER_LOGIN = "acfc3b001@smtp-brevo.com" # <--- Inserito l'Accesso esatto della foto
+    PASSWORD_APPLICAZIONE = "cklkgllflhdpfqbw"    # <--- La chiave lunga che hai generato sotto (o la nuova se l'hai rifatta)
     
     # Costruzione del messaggio in HTML elegante e coordinato
     messaggio = MIMEMultipart()
