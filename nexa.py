@@ -690,10 +690,11 @@ if st.session_state.autenticato and st.session_state.utente_attuale.lower() in [
             nuovo_nome = st.text_input("Ragione Sociale / Nome Partner", placeholder="Es. Nexa Enterprise S.r.l.", key="add_nome")
             nuova_email = st.text_input("Email di Destinazione", placeholder="Es. info@nexaplatform.it", key="add_email")
         with col2:
-            # 🎯 RIPRISTINO AUTOMATISMO USERNAME: Prende il nome e lo preimposta da solo eliminando spazi e punti
+            # 🎯 AUTOMATISMO USERNAME: Genera il suggerimento pulito
             suggerimento_user = nuovo_nome.lower().replace(" ", "").replace(".", "")[:10] if nuovo_nome else "nuovopartner"
-            nuovo_username = st.text_input("Username Account", value=suggerimento_user, placeholder="Username per il login", key="add_user")
-            nuova_password = st.text_input("Password Temporanea", value="nexa2026!", placeholder="Password iniziale", key="add_pass")
+            # Cambiate etichette e chiavi per ingannare l'autofill di Chrome/TIM
+            nuovo_username = st.text_input("Codice Utente Partner", value=suggerimento_user, placeholder="Es: gricaf", key="partner_secure_code_v1")
+            nuova_password = st.text_input("Chiave Accesso Temporanea", value="nexa2026!", placeholder="Password iniziale", key="partner_secure_key_v1")
 
         if st.button("🚀 GENERA ACCOUNT E INVIA MAIL", use_container_width=True):
             if nuovo_nome and nuova_email and nuovo_username and nuova_password:
@@ -724,7 +725,51 @@ if st.session_state.autenticato and st.session_state.utente_attuale.lower() in [
                     if db_salvato:
                         invio_successo = invia_email_onboarding(nuova_email, nuovo_nome, nuovo_username, nuova_password)
                         if invio_successo:
-                            # 🎯 RIPRISTINO SCRITTA VERDE: Mostra il successo dell'operazione a schermo
+                            # 🎯 RIPRISTINO SCRITTA VERDE DI SUCCESSO
                             st.success(f"✅ Mail inviata con successo! Licenza di 12 mesi attivata per `{nuovo_username}`.")
                             st.toast("📧 Notifica inviata!", icon="🚀")
                             st.rerun()
+
+    with tab_gestisci:
+        st.markdown("### 🛠️ Monitoraggio Scadenze e Revoca Accessi")
+        try:
+            df_utenti = esegui_query("SELECT username, azienda, email, data_creazione, stato_licenza FROM utenti WHERE username NOT IN ('arteq', 'monica')", ritorna_df=True)
+            
+            if not df_utenti.empty:
+                for index, row in df_utenti.iterrows():
+                    user_client = row['username']
+                    azienda_client = row['azienda']
+                    email_client = row['email'] if row['email'] else "Nessuna mail inserita"
+                    data_crea_str = row['data_creazione'] if row['data_creazione'] else "2026-05-30"
+                    
+                    try:
+                        data_crea = datetime.datetime.strptime(data_crea_str, "%Y-%m-%d").date()
+                        data_scadenza = data_crea + datetime.timedelta(days=365)
+                        giorni_rimanenti = (data_scadenza - datetime.date.today()).days
+                        mesi_rimanenti = max(0, int(giorni_rimanenti / 30))
+                    except:
+                        mesi_rimanenti = 12
+                        giorni_rimanenti = 365
+                    
+                    c1, c2, c3, c4 = st.columns([2, 3, 2, 1])
+                    with c1:
+                        st.markdown(f"**{azienda_client}** \n`User: {user_client}`")
+                    with c2:
+                        st.markdown(f"📧 {email_client}")
+                    with c3:
+                        if giorni_rimanenti <= 0:
+                            st.error("🚨 SCADUTA (0 gg)")
+                        elif giorni_rimanenti <= 30:
+                            st.warning(f"⏳ Scade tra {giorni_rimanenti} gg")
+                        else:
+                            st.success(f"🟢 Attiva ({mesi_rimanenti} mesi rimasti)")
+                    with c4:
+                        if st.button("🗑️", key=f"del_{user_client}", help=f"Elimina definitivamente {azienda_client}"):
+                            esegui_query("DELETE FROM utenti WHERE username = ?", (user_client,))
+                            st.toast(f"❌ Account di {azienda_client} eliminato!", icon="🗑️")
+                            st.rerun()
+                    st.markdown("---")
+            else:
+                st.info("ℹ️ Nessun partner esterno registrato nel sistema.")
+        except Exception as err:
+            st.error(f"Errore caricamento lista: {str(err)}")
