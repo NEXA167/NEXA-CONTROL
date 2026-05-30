@@ -299,29 +299,33 @@ with col_p1:
         fig_gauge = go.Figure(go.Indicator(
             mode = "gauge+number", 
             value = media_fatturato,
-            number = {'prefix': "€ ", 'valueformat': ",.2f", 'font': {'size': 22, 'color': '#0F172A'}},
+            number = {'prefix': "€ ", 'valueformat': ",.2f", 'font': {'size': 24, 'color': '#0F172A'}},
             domain = {'x': [0, 1], 'y': [0, 1]},
             gauge = {
                 'axis': {'range': [0, valore_max], 'tickwidth': 1, 'tickcolor': "#475569"},
-                'bar': {'color': "#1E293B", 'thickness': 0.25}, # Lancetta nera spessa (Fatturato Attuale)
+                'bar': {'color': "#1E293B", 'thickness': 0.22}, # Barra scura (Fatturato Reale)
                 'steps': [
-                    {"range": [0, max(punto_pareggio_medio, 1.0)], "color": "#FEE2E2"}, # Area di Perdita
-                    {"range": [max(punto_pareggio_medio, 1.0), valore_max], "color": "#DCFCE7"} # Area di Profitto
+                    {"range": [0, max(punto_pareggio_medio, 1.0)], "color": "#FEE2E2"}, # Area di Perdita (Rosa)
+                    {"range": [max(punto_pareggio_medio, 1.0), valore_max], "color": "#DCFCE7"} # Area di Profitto (Verde)
                 ],
                 'threshold': {
-                    'line': {'color': "#DC2626", 'width': 4}, # Stanghetta Rossa (Punto di Pareggio)
-                    'thickness': 0.8, 
+                    'line': {'color': "#DC2626", 'width': 4}, # Linea Rossa di sbarramento (BEP)
+                    'thickness': 0.75, 
                     'value': max(punto_pareggio_medio, 0.1)
                 }
             }
         ))
         
-        # Legende testuali corrette con la chiave 'family' richiesta da Plotly
-        fig_gauge.add_annotation(x=0.5, y=-0.05, text="📊 Freccia Nera: Fatturato Medio Reale", showarrow=False, font=dict(size=11, color="#1E293B", family="sans-serif"))
-        fig_gauge.add_annotation(x=0.5, y=-0.20, text="🎯 Linea Rossa: Soglia Minima di Pareggio (BEP)", showarrow=False, font=dict(size=11, color="#DC2626", family="sans-serif"))
+        fig_gauge.update_layout(margin=dict(l=10, r=10, t=30, b=10), height=180, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
+        st.plotly_chart(fig_gauge, use_container_width=True, key="gauge_v70_clean_fixed")
         
-        fig_gauge.update_layout(margin=dict(l=10, r=10, t=20, b=40), height=220, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
-        st.plotly_chart(fig_gauge, use_container_width=True, key="gauge_v65_final_labels_fixed")
+        # LEGENDA ELEGANTE ESTERNA: Pulita, spaziata e leggibile senza toccare il grafico
+        leg_col1, leg_col2 = st.columns(2)
+        with leg_col1:
+            st.markdown("<p style='font-size:11px; color:#1E293B; margin:0; text-align:center;'>⬛ <b>Arco Scuro:</b><br>Fatturato Medio Reale</p>", unsafe_allow_html=True)
+        with leg_col2:
+            st.markdown("<p style='font-size:11px; color:#DC2626; margin:0; text-align:center;'>🟥 <b>Linea Rossa:</b><br>Soglia di Pareggio (BEP)</p>", unsafe_allow_html=True)
+            
     else:
         st.info("📥 Inserisci i dati mensili per attivare il tachimetro.")
 
