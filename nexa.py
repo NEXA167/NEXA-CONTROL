@@ -575,6 +575,7 @@ else:
 # --- 10. TABELLA REGISTRO ---
 st.markdown("---")
 st.subheader("📅 Registro Storico di Controllo")
+
 st.dataframe(
     db_utente,
     column_config={
@@ -582,14 +583,19 @@ st.dataframe(
         "Fatturato": st.column_config.NumberColumn("Fatturato", format="€ %,.0f", width="small"),
         "Margine %": st.column_config.NumberColumn("Marg. %", format="%,.2f", width="small"), 
         "Saldo Banca (Cassa)": st.column_config.NumberColumn("Cassa", format="€ %,.0f", width="small"),
-        "Costi Variabili": st.column_config.NumberColumn("Forn. Componenti", format="€ %,.0f", width="small"), 
+        "Costi Variabili": st.column_config.NumberColumn("Forn. Comp.", format="€ %,.0f", width="small"), 
         "Costi Fissi (Fornitori)": st.column_config.NumberColumn("Spese Fisse", format="€ %,.0f", width="small"),
         "Mutui e Leasing": st.column_config.NumberColumn("Leasing", format="€ %,.0f", width="small"), 
         "Debiti IVA e Contributi": st.column_config.NumberColumn("IVA/INPS", format="€ %,.0f", width="small"),
         "Valore Magazzino": st.column_config.NumberColumn("Magazzino", format="€ %,.0f", width="small"), 
+        "scadenze_attive": st.column_config.NumberColumn("Incassi 30g", format="€ %,.0f", width="small"),
+        "rateizzazioni_extra": st.column_config.NumberColumn("Rateizz. Ext", format="€ %,.0f", width="small"),
+        "finanziamenti_extra": st.column_config.NumberColumn("Finanz. Ext", format="€ %,.0f", width="small"),
         "Punto di Pareggio": st.column_config.NumberColumn("BEP", format="€ %,.0f", width="small")
     },
-    hide_index=True, use_container_width=True
+    hide_index=True, 
+    use_container_width=True,
+    height=455 # 📐 AGGIUNTO QUI: Spazio verticale fisso per stampare tutti i 12 mesi senza cursore!
 )
 
 # --- 11. MOTORE DI AUTOMAZIONE COMUNICAZIONE & EMAIL ---
