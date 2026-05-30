@@ -79,24 +79,29 @@ if not st.session_state.autenticato:
         
         /* 👁️ 1. CANCELLAZIONE TOTALE BARRA SUPERIORE STREAMLIT */
         header[data-testid="stHeader"] {
-            visibility: hidden;
+            visibility: hidden !important;
             height: 0px !important;
             display: none !important;
         }
         
-        /* 👁️ 2. COLPO DI SPUGNA: ELIMINAZIONE TASTO NERO MANAGE APP E LOG IN BASSO */
+        /* 👁️ 2. FORZA BRUTA DEFINITIVA: ABBATTIMENTO DI QUALSIASI BOTTONE IN BASSO A DESTRA */
         div[data-testid="stAppDeployDocsWrapper"], 
         footer, 
-        #MainMenu, 
-        iframe[title="Sign in with Google"] { 
+        #MainMenu { 
             visibility: hidden !important; 
             display: none !important; 
         }
         
-        /* Forza il blocco di qualsiasi elemento fluttuante di Streamlit in basso a destra */
-        .stDeployButton, div[class*="stDeployButton"], button[id*="manage-app"] {
+        /* Questo intercetta e polverizza qualsiasi cosa si posizioni nell'angolo fisso in basso a destra */
+        div[style*="position: fixed"][style*="bottom:"], 
+        div[style*="position:fixed"][style*="bottom:"],
+        .stDeployButton,
+        button[id*="manage-app"] {
             display: none !important;
             visibility: hidden !important;
+            opacity: 0 !important;
+            height: 0px !important;
+            width: 0px !important;
         }
         
         /* 🎯 3. RIPRISTINO CENTRATURA ASSOLUTA E SIMMETRIA TEXT */
@@ -122,32 +127,6 @@ if not st.session_state.autenticato:
         .btn-container-minimal button { font-size: 18px !important; font-weight: 800 !important; padding: 12px 20px !important; background-color: #0F172A !important; color: #FFFFFF !important; border-radius: 8px !important; border: none !important; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.15) !important; }
         </style>
         """, unsafe_allow_html=True)
-        
-    st.markdown("<div class='login-minimal-container'>", unsafe_allow_html=True)
-    st.markdown("<h1 class='login-title-minimal'>🚀 NEXA CONTROL</h1>", unsafe_allow_html=True)
-    st.markdown("<p class='login-subtitle-minimal'>Pannello di Accesso Server Predittivo</p>", unsafe_allow_html=True)
-    
-    st.markdown("<p class='field-label-minimal'>👤 USERNAME</p>", unsafe_allow_html=True)
-    user_input = st.text_input("nexa_field_usr_secure_gate", label_visibility="collapsed", autocomplete="off").strip().lower()
-    
-    st.markdown("<p class='field-label-minimal'>🔒 PASSWORD</p>", unsafe_allow_html=True)
-    st.markdown("<div class='scudo-password-input'>", unsafe_allow_html=True)
-    pass_input = st.text_input("nexa_field_pwd_secure_gate", label_visibility="collapsed", autocomplete="off", type="password")
-    st.markdown("</div>", unsafe_allow_html=True)
-    
-    st.markdown("<div class='btn-container-minimal'>", unsafe_allow_html=True)
-    if st.button("ACCEDI AL SOFTWARE", use_container_width=True):
-        risultato = esegui_query("SELECT password, azienda FROM utenti WHERE username = ?", (user_input,), fetch="one")
-        if risultato and risultato[0] == pass_input:
-            st.session_state.autenticato = True
-            st.session_state.utente_attuale = user_input
-            st.session_state.azienda_attuale = risultato[1]
-            st.rerun()
-        else:
-            st.error("❌ Credenziali errate. Riprova.")
-            
-    st.markdown("</div></div>", unsafe_allow_html=True)
-    st.stop()
 # --- 4. STILE DASHBOARD REALE ---
 st.markdown("""
     <style>
