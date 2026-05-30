@@ -77,26 +77,25 @@ if not st.session_state.autenticato:
         .stApp { background-color: #EBF0F5 !important; } 
         .login-minimal-container { max-width: 530px; margin: 120px auto; text-align: center; }
         
-        /* 👁️ 1. CANCELLAZIONE TOTALE BARRA SUPERIORE STREAMLIT */
-        header[data-testid="stHeader"] {
+        /* 👁️ 1. OCULTAMENTO TOTALE HEADER E STRUMENTI DI CONDIVISIONE STREAMLIT */
+        header[data-testid="stHeader"], 
+        div[data-testid="stHeader"] {
             visibility: hidden !important;
             height: 0px !important;
             display: none !important;
         }
         
-        /* 👁️ 2. FORZA BRUTA DEFINITIVA: ABBATTIMENTO DI QUALSIASI BOTTONE IN BASSO A DESTRA */
-        div[data-testid="stAppDeployDocsWrapper"], 
-        footer, 
-        #MainMenu { 
+        /* 👁️ 2. COLPO DI SPUGNA DEFINITIVO SUL TASTO NERO MANAGE APP E QUALSIASI ELEMENTO FISSO */
+        footer, #MainMenu, .stDeployButton { 
             visibility: hidden !important; 
             display: none !important; 
         }
         
-        /* Questo intercetta e polverizza qualsiasi cosa si posizioni nell'angolo fisso in basso a destra */
-        div[style*="position: fixed"][style*="bottom:"], 
-        div[style*="position:fixed"][style*="bottom:"],
-        .stDeployButton,
-        button[id*="manage-app"] {
+        /* Regola d'acciaio: intercetta e distrugge qualsiasi contenitore ancorato sul fondo dello schermo */
+        div[style*="position: fixed"], 
+        div[style*="position:fixed"],
+        button[id*="manage-app"],
+        div[class*="stDeployButton"] {
             display: none !important;
             visibility: hidden !important;
             opacity: 0 !important;
@@ -104,7 +103,7 @@ if not st.session_state.autenticato:
             width: 0px !important;
         }
         
-        /* 🎯 3. RIPRISTINO CENTRATURA ASSOLUTA E SIMMETRIA TEXT */
+        /* 🎯 3. CENTRATURA E SIMMETRIA DEI TESTI DI INGRESSO */
         .login-title-minimal { color: #0F172A; font-size: 41px; font-weight: 800; letter-spacing: -0.5px; margin: 0 auto 10px auto; text-align: center !important; display: block; width: 100%; }
         .login-subtitle-minimal { color: #64748B; font-size: 15px; margin: 0 auto 40px auto; text-align: center !important; display: block; width: 100%; }
         .field-label-minimal { color: #0F172A !important; font-size: 19px; font-weight: 700; text-align: center !important; margin-bottom: 6px; margin-top: 25px; display: block; width: 100%; }
@@ -127,18 +126,47 @@ if not st.session_state.autenticato:
         .btn-container-minimal button { font-size: 18px !important; font-weight: 800 !important; padding: 12px 20px !important; background-color: #0F172A !important; color: #FFFFFF !important; border-radius: 8px !important; border: none !important; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.15) !important; }
         </style>
         """, unsafe_allow_html=True)
+        
+    st.markdown("<div class='login-minimal-container'>", unsafe_allow_html=True)
+    st.markdown("<h1 class='login-title-minimal'>🚀 NEXA CONTROL</h1>", unsafe_allow_html=True)
+    st.markdown("<p class='login-subtitle-minimal'>Pannello di Accesso Server Predittivo</p>", unsafe_allow_html=True)
+    
+    st.markdown("<p class='field-label-minimal'>👤 USERNAME</p>", unsafe_allow_html=True)
+    user_input = st.text_input("nexa_field_usr_secure_gate", label_visibility="collapsed", autocomplete="off").strip().lower()
+    
+    st.markdown("<p class='field-label-minimal'>🔒 PASSWORD</p>", unsafe_allow_html=True)
+    st.markdown("<div class='scudo-password-input'>", unsafe_allow_html=True)
+    pass_input = st.text_input("nexa_field_pwd_secure_gate", label_visibility="collapsed", autocomplete="off", type="password")
+    st.markdown("</div>", unsafe_allow_html=True)
+    
+    st.markdown("<div class='btn-container-minimal'>", unsafe_allow_html=True)
+    if st.button("ACCEDI AL SOFTWARE", use_container_width=True):
+        risultato = esegui_query("SELECT password, azienda FROM utenti WHERE username = ?", (user_input,), fetch="one")
+        if risultato and risultato[0] == pass_input:
+            st.session_state.autenticato = True
+            st.session_state.utente_attuale = user_input
+            st.session_state.azienda_attuale = risultato[1]
+            st.rerun()
+        else:
+            st.error("❌ Credenziali errate. Riprova.")
+            
+    st.markdown("</div></div>", unsafe_allow_html=True)
+    st.stop() # <-- COMPRESO LO STOP: SE NON SEI LOGGATO, IL CODICE SI FERMA QUI.
+
 # --- 4. STILE DASHBOARD REALE ---
 st.markdown("""
     <style>
-    /* 👁️ SPARIRE BARRA DI CONDIVISIONE ANCHE NELLA DASHBOARD */
-    header[data-testid="stHeader"] {
-        visibility: hidden;
-        height: 0%;
-    }
-    footer { visibility: hidden; }
-    #MainMenu { visibility: hidden; }
-    
     .stApp { background-color: #EBF0F5 !important; }
+    .main { background-color: #EBF0F5; color: #1E293B; }
+    
+    /* Applichiamo lo scudo anti tasto nero anche dentro la dashboard */
+    header[data-testid="stHeader"], div[data-testid="stHeader"], footer, #MainMenu, .stDeployButton, div[style*="position: fixed"], div[style*="position:fixed"], button[id*="manage-app"] {
+        visibility: hidden !important;
+        display: none !important;
+        opacity: 0 !important;
+        height: 0px !important;
+    }
+    
     .stButton>button { background-color: #FFFFFF; color: #1E293B; border: 1px solid #CBD5E1; border-radius: 8px; font-weight: bold; padding: 8px 16px; }
     .titolo-grafico-libero { color: #1E293B; font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
     .testo-valore-centrale { color: #0F172A; font-size: 42px; font-weight: 800; text-align: center; margin: 15px 0; }
