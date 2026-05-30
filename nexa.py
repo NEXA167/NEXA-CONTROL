@@ -689,13 +689,12 @@ if st.session_state.autenticato and st.session_state.utente_attuale.lower() in [
         with col1:
             nuovo_nome = st.text_input("Ragione Sociale / Nome Partner", placeholder="Es. Nexa Enterprise S.r.l.", key="add_nome")
             nuova_email = st.text_input("Email di Destinazione", placeholder="Es. info@nexaplatform.it", key="add_email")
-       with col2:
+        
+        with col2:
             # 🎯 AUTOMATISMO USERNAME: Genera il suggerimento pulito
             suggerimento_user = nuovo_nome.lower().replace(" ", "").replace(".", "")[:10] if nuovo_nome else "nuovopartner"
-            
             nuovo_username = st.text_input("Codice Utente Partner", value=suggerimento_user, placeholder="Es: gricaf", key="partner_secure_code_v1")
-            
-            # 🔥 CORREZIONE QUI: Aggiunto type="password" per nascondere i caratteri e bloccare il banner del browser!
+            # 🔥 CON TYPE="PASSWORD" PER BLOCCARE IL BANNER DI TIM!
             nuova_password = st.text_input("Chiave Accesso Temporanea", value="nexa2026!", type="password", placeholder="Password iniziale", key="partner_secure_key_v1")
 
         if st.button("🚀 GENERA ACCOUNT E INVIA MAIL", use_container_width=True):
