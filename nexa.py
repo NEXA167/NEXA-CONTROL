@@ -112,7 +112,6 @@ if not st.session_state.autenticato:
     
     st.markdown("<div class='btn-container-minimal'>", unsafe_allow_html=True)
     if st.button("ACCEDI AL SOFTWARE", use_container_width=True):
-        # Definiamo la variabile qui all'inizio così Python la vede al 100%
         accesso_consentito = True 
         
         risultato = esegui_query("SELECT password, azienda FROM utenti WHERE username = ?", (user_input,), fetch="one")
@@ -130,7 +129,6 @@ if not st.session_state.autenticato:
                     
                     if data_row and data_row[0]:
                         data_crea = datetime.datetime.strptime(data_row[0], "%Y-%m-%d").date()
-                        # Se sono passati più di 365 giorni, blocca l'accesso!
                         if (datetime.date.today() - data_crea).days > 365:
                             st.error("🚨 Il tuo abbonamento Nexa Platform è scaduto dopo 12 mesi. Contatta info@arteq.it per il rinnovo.")
                             accesso_consentito = False
