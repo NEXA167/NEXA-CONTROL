@@ -112,34 +112,12 @@ if not st.session_state.autenticato:
     
     st.markdown("<div class='btn-container-minimal'>", unsafe_allow_html=True)
     if st.button("ACCEDI AL SOFTWARE", use_container_width=True):
-        accesso_consentito = True 
-        
         risultato = esegui_query("SELECT password, azienda FROM utenti WHERE username = ?", (user_input,), fetch="one")
         if risultato and risultato[0] == pass_input:
-            
-            # 🔐 CONTROLLO KILL-SWITCH (BLOCCO 12 MESI)
-            if user_input.lower() not in ['arteq', 'monica', 'luca']:
-                try:
-                    import datetime
-                    conn = sqlite3.connect("nexa_cloud.db")
-                    cursor = conn.cursor()
-                    cursor.execute("SELECT data_creazione FROM utenti WHERE username = ?", (user_input,))
-                    data_row = cursor.fetchone()
-                    conn.close()
-                    
-                    if data_row and data_row[0]:
-                        data_crea = datetime.datetime.strptime(data_row[0], "%Y-%m-%d").date()
-                        if (datetime.date.today() - data_crea).days > 365:
-                            st.error("🚨 Il tuo abbonamento Nexa Platform è scaduto dopo 12 mesi. Contatta info@arteq.it per il rinnovo.")
-                            accesso_consentito = False
-                except:
-                    pass 
-            
-            if acceso_consentito:
-                st.session_state.autenticato = True
-                st.session_state.utente_attuale = user_input
-                st.session_state.azienda_attuale = risultato[1]
-                st.rerun()
+            st.session_state.autenticato = True
+            st.session_state.utente_attuale = user_input
+            st.session_state.azienda_attuale = risultato[1]
+            st.rerun()
         else:
             st.error("❌ Credenziali errate. Riprova.")
             
