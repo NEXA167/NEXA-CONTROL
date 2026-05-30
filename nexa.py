@@ -595,8 +595,7 @@ st.dataframe(
     },
     hide_index=True, 
     use_container_width=True,
-    height=455 # 📐 AGGIUNTO QUI: Spazio verticale fisso per stampare tutti i 12 mesi senza cursore!
-)
+    height=490 # 🔥 MODIFICATO QUI: Quei 35 pixel in più che eliminano l'ultimo microscopico movimento!
 
 # --- 11. MOTORE DI AUTOMAZIONE COMUNICAZIONE & EMAIL ---
 import smtplib
