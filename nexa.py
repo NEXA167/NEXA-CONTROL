@@ -115,12 +115,11 @@ if not st.session_state.autenticato:
         risultato = esegui_query("SELECT password, azienda FROM utenti WHERE username = ?", (user_input,), fetch="one")
         if risultato and risultato[0] == pass_input:
             
-            # 🔐 INNESTO CHIRURGICO KILL-SWITCH (CONTROLLO 12 MESI)
+            # 🔐 CONTROLLO KILL-SWITCH (BLOCCO 12 MESI)
             accesso_consentito = True
             if user_input.lower() not in ['arteq', 'monica', 'luca']:
                 try:
                     import datetime
-                    # Controlliamo se l'utente ha una data di creazione nel database
                     conn = sqlite3.connect("nexa_cloud.db")
                     cursor = conn.cursor()
                     cursor.execute("SELECT data_creazione FROM utenti WHERE username = ?", (user_input,))
@@ -134,7 +133,7 @@ if not st.session_state.autenticato:
                             st.error("🚨 Il tuo abbonamento Nexa Platform è scaduto dopo 12 mesi. Contatta info@arteq.it per il rinnovo.")
                             accesso_consentito = False
                 except:
-                    pass # Se il DB non ha ancora i campi pronti, lo facciamo entrare per sicurezza
+                    pass 
             
             if acceso_consentito:
                 st.session_state.autenticato = True
@@ -143,8 +142,9 @@ if not st.session_state.autenticato:
                 st.rerun()
         else:
             st.error("❌ Credenziali errate. Riprova.")
+            
     st.markdown("</div></div>", unsafe_allow_html=True)
-
+    st.stop() # <--- REINSERITO IL BLOCCO DI SICUREZZA QUI! FONDAMENTALE.
 # --- 4. STILE DASHBOARD REALE ---
 st.markdown("""
     <style>
