@@ -50,6 +50,21 @@ except: pass
 
 # Inizializzazione tabelle aziendali (SOSTITUISCI CON QUESTA NUOVA STRUTTURA)
 esegui_query("CREATE TABLE IF NOT EXISTS utenti (username TEXT PRIMARY KEY, password TEXT, azienda TEXT)")
+
+# 🛡️ INNESTO CHIRURGICO: MIGRAZIONE AUTOMATICA COLONNE MANCANTI UTENTI
+try:
+    esegui_query("ALTER TABLE utenti ADD COLUMN email TEXT DEFAULT '';")
+except: pass
+
+try:
+    esegui_query("ALTER TABLE utenti ADD COLUMN data_creazione TEXT DEFAULT '';")
+except: pass
+
+try:
+    esegui_query("ALTER TABLE utenti ADD COLUMN stato_licenza TEXT DEFAULT 'ATTIVO';")
+except: pass
+
+
 esegui_query("""
     CREATE TABLE IF NOT EXISTS dati_mensili (
         id TEXT PRIMARY KEY, username TEXT, mese TEXT, fatturato REAL,
