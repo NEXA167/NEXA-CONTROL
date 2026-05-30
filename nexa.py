@@ -536,9 +536,9 @@ def invia_email_onboarding(email_destinatario, nome_cliente, username_generato, 
     SMTP_PORT = 587                      
     EMAIL_MITTENTE = "info@arteq.it"    # Il mittente che legge il cliente finale
     
-    # DATI PRESI DIRETTAMENTE DALLA TUA SCHERMATA:
-    BREVO_USER_LOGIN = "acfc3b001@smtp-brevo.com" # <--- Inserito l'Accesso esatto della foto
-    PASSWORD_APPLICAZIONE = "cklkgllflhdpfqbw"    # <--- La chiave lunga che hai generato sotto (o la nuova se l'hai rifatta)
+    # CREDENZIALI REALI DI CONFIGURAZIONE AZIENDALE
+    BREVO_USER_LOGIN = "acfc3b001@smtp-brevo.com" 
+    PASSWORD_APPLICAZIONE = "xsmtpsib-24df274dfb77418f5508fd430f3017d774ff2140272dd14910d364c299f700c3-v5znEzrc9BLtJopS" 
     
     # Costruzione del messaggio in HTML elegante e coordinato
     messaggio = MIMEMultipart()
@@ -580,8 +580,7 @@ def invia_email_onboarding(email_destinatario, nome_cliente, username_generato, 
         server.ehlo()
         server.starttls()
         server.ehlo()
-        # Modificato qui per usare il login corretto di registrazione Brevo
-        server.login(BREVO_USER_LOGIN, PASSWORD_APPLICAZIONE) 
+        server.login(BREVO_USER_LOGIN, PASSWORD_APPLICAZIONE)
         server.sendmail(EMAIL_MITTENTE, email_destinatario, messaggio.as_string())
         server.quit()
         return True
