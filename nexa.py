@@ -299,23 +299,31 @@ with col_p1:
         fig_gauge = go.Figure(go.Indicator(
             mode = "gauge+number", 
             value = media_fatturato,
-            number = {'prefix': "€ ", 'valueformat': ",.2f", 'font': {'size': 24, 'color': '#0F172A'}},
+            number = {'prefix': "€ ", 'valueformat': ",.2f", 'font': {'size': 22, 'color': '#0F172A'}},
             domain = {'x': [0, 1], 'y': [0, 1]},
             gauge = {
                 'axis': {'range': [0, valore_max], 'tickwidth': 1, 'tickcolor': "#475569"},
-                'bar': {'color': "#1E293B", 'thickness': 0.22},
+                'bar': {'color': "#1E293B", 'thickness': 0.25}, # Lancetta nera spessa (Fatturato Attuale)
                 'steps': [
-                    {"range": [0, max(punto_pareggio_medio, 1.0)], "color": "#FEE2E2"}, 
-                    {"range": [max(punto_pareggio_medio, 1.0), valore_max], "color": "#DCFCE7"}
+                    {"range": [0, max(punto_pareggio_medio, 1.0)], "color": "#FEE2E2"}, # Area di Perdita
+                    {"range": [max(punto_pareggio_medio, 1.0), valore_max], "color": "#DCFCE7"} # Area di Profitto
                 ],
-                'threshold': {'line': {'color': "red", 'width': 3}, 'thickness': 0.75, 'value': max(punto_pareggio_medio, 0.1)}
+                'threshold': {
+                    'line': {'color': "#DC2626", 'width': 4}, # Stanghetta Rossa (Punto di Pareggio)
+                    'thickness': 0.8, 
+                    'value': max(punto_pareggio_medio, 0.1)
+                }
             }
         ))
-        fig_gauge.update_layout(margin=dict(l=10, r=10, t=30, b=10), height=200, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
-        st.plotly_chart(fig_gauge, use_container_width=True, key="gauge_v60_final")
+        
+        # Aggiungiamo le legende testuali direttamente sopra le rispettive linee per massima chiarezza
+        fig_gauge.add_annotation(x=0.5, y=-0.05, text="📊 Freccia Nera: Fatturato Medio Reale", showarrow=False, font=dict(size=11, color="#1E293B", fontfamily="sans-serif"))
+        fig_gauge.add_annotation(x=0.5, y=-0.20, text="🎯 Linea Rossa: Soglia Minima di Pareggio (BEP)", showarrow=False, font=dict(size=11, color="#DC2626", fontfamily="sans-serif"))
+        
+        fig_gauge.update_layout(margin=dict(l=10, r=10, t=20, b=40), height=220, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
+        st.plotly_chart(fig_gauge, use_container_width=True, key="gauge_v65_final_labels")
     else:
         st.info("📥 Inserisci i dati mensili per attivare il tachimetro.")
-
 with col_p2:
     st.markdown("<div class='titolo-grafico-libero'>2. Monitor del Magazzino</div>", unsafe_allow_html=True)
     fig_mag = go.Figure()
