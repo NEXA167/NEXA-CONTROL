@@ -154,11 +154,13 @@ if not st.session_state.autenticato:
     st.markdown("<p class='login-subtitle-minimal'>Pannello di Accesso Server Predittivo</p>", unsafe_allow_html=True)
     
     st.markdown("<p class='field-label-minimal'>👤 USERNAME</p>", unsafe_allow_html=True)
-    user_input = st.text_input("nexa_field_usr_secure_gate", label_visibility="collapsed", autocomplete="off").strip().lower()
+    # Chiave camuffata per bloccare l'autofill dell'utente
+    user_input = st.text_input("Codice Ingresso Server", label_visibility="collapsed", autocomplete="off", key="nexa_control_login_user_secure").strip().lower()
     
     st.markdown("<p class='field-label-minimal'>🔒 PASSWORD</p>", unsafe_allow_html=True)
     st.markdown("<div class='scudo-password-input'>", unsafe_allow_html=True)
-    pass_input = st.text_input("nexa_field_pwd_secure_gate", label_visibility="collapsed", autocomplete="off", type="password")
+    # 🔥 LA MODIFICA CHIAVE: Rimosso type="password" e usata una chiave generica. Il banner NON uscirà più!
+    pass_input = st.text_input("Chiave Verifica Server", label_visibility="collapsed", autocomplete="off", key="nexa_control_login_key_secure")
     st.markdown("</div>", unsafe_allow_html=True)
     
     st.markdown("<div class='btn-container-minimal'>", unsafe_allow_html=True)
