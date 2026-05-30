@@ -584,7 +584,7 @@ def invia_email_onboarding(email_destinatario, nome_cliente, username_generato, 
         print(f"Errore di invio email: {str(e)}")
         return False
     # --- 12. INTERFACCIA DI AMMINISTRAZIONE E INVIO ONBOARDING ---
-if st.session_state.autenticato and st.session_state.utente_attuale in ['arteq', 'monica']:
+if st.session_state.autenticato and st.session_state.utente_attuale.lower() in ['arteq', 'monica']:
     st.sidebar.markdown("---")
     st.sidebar.markdown("### ⚙️ Amministrazione Nexa")
     st.sidebar.markdown("#### 📧 Onboarding Nuovo Cliente")
@@ -615,17 +615,18 @@ if st.session_state.autenticato and st.session_state.utente_attuale in ['arteq',
                 
                 # 2. Se il database è aggiornato, facciamo partire la notifica via SMTP
                 if db_salvato:
+                    # CORRETTO QUI: password_generata specchia esattamente il blocco 11
                     invio_successo = invia_email_onboarding(
                         email_destinatario=nuova_email,
                         nome_cliente=nuovo_nome,
                         username_generato=nuovo_username,
-                        password_generated=nuova_password
+                        password_generata=nuova_password
                     )
                     
                     if invio_successo:
-                        st.sidebar.success(f"✅ Account `{nuovo_username}` attivato! Email di onboarding inviata a {nuova_email}.")
+                        st.sidebar.success(f"✅ Account `{nuovo_username}` attivato! Email inviata a {nuova_email}.")
                     else:
-                        st.sidebar.warning(f"⚠️ Account creato nel DB, ma il server SMTP ha rifiutato l'invio. Verifica le credenziali SMTP nel codice.")
+                        st.sidebar.warning(f"⚠️ Account creato nel DB, ma configura i dati SMTP reali nel blocco 11 per l'invio della mail.")
         else:
             st.sidebar.error("❌ Compila tutti i campi prima di procedere.")
 
