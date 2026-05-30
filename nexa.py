@@ -532,12 +532,16 @@ from email.mime.multipart import MIMEMultipart
 
 def invia_email_onboarding(email_destinatario, nome_cliente, username_generato, password_generata):
     # PARAMETRI CONFIGURATI PER SMTP DIRETTO (BREVO)
-    SMTP_SERVER = "smtp-relay.brevo.com" # Server SMTP ultra-veloce di Brevo
-    SMTP_PORT = 587                      # Porta di connessione sicura standard
-    EMAIL_MITTENTE = "info@arteq.it"    # Il tuo indirizzo ufficiale (visualizzato dal cliente)
+    SMTP_SERVER = "smtp-relay.brevo.com" 
+    SMTP_PORT = 587                      
+    EMAIL_MITTENTE = "info@arteq.it"    # Il mittente che legge il cliente finale
     
-    # INCOLLA QUI LA CHIAVE GENERATA SU BREVO (es. "xsmtpsib-...")
-    PASSWORD_APPLICAZIONE = "acfc3b001@smtp-brevo.com" 
+    # --- FOCUS BREVO ---
+    # Se la mail con cui hai creato l'account Brevo è DIVERSA da info@arteq.it, mettila qui sotto.
+    # Se invece è identica, lascia pure "info@arteq.it"
+    BREVO_USER_LOGIN = "LA_TUA_EMAIL_DI_REGISTRAZIONE_BREVO" 
+    
+    PASSWORD_APPLICAZIONE = "LA_TUA_CHIAVE_LUNGA_SMTP_BREVO"
     
     # Costruzione del messaggio in HTML elegante e coordinato
     messaggio = MIMEMultipart()
@@ -579,7 +583,8 @@ def invia_email_onboarding(email_destinatario, nome_cliente, username_generato, 
         server.ehlo()
         server.starttls()
         server.ehlo()
-        server.login(EMAIL_MITTENTE, PASSWORD_APPLICAZIONE)
+        # Modificato qui per usare il login corretto di registrazione Brevo
+        server.login(BREVO_USER_LOGIN, PASSWORD_APPLICAZIONE) 
         server.sendmail(EMAIL_MITTENTE, email_destinatario, messaggio.as_string())
         server.quit()
         return True
