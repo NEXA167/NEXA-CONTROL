@@ -303,13 +303,13 @@ with col_p1:
             domain = {'x': [0, 1], 'y': [0, 1]},
             gauge = {
                 'axis': {'range': [0, valore_max], 'tickwidth': 1, 'tickcolor': "#475569"},
-                'bar': {'color': "#1E293B", 'thickness': 0.22}, # Arco Scuro
+                'bar': {'color': "#1E293B", 'thickness': 0.22}, # Arco Scuro (Fatturato Reale)
                 'steps': [
-                    {"range": [0, max(punto_pareggio_medio, 1.0)], "color": "#FEE2E2"}, 
-                    {"range": [max(punto_pareggio_medio, 1.0), valore_max], "color": "#DCFCE7"}
+                    {"range": [0, max(punto_pareggio_medio, 1.0)], "color": "#FEE2E2"}, # Area di Perdita (Rosa)
+                    {"range": [max(punto_pareggio_medio, 1.0), valore_max], "color": "#DCFCE7"} # Area di Profitto (Verde)
                 ],
                 'threshold': {
-                    'line': {'color': "#DC2626", 'width': 4}, # Linea Rossa (BEP)
+                    'line': {'color': "#1E3A8A", 'width': 4}, # Linea Blu Istituzionale (Soglia BEP)
                     'thickness': 0.75, 
                     'value': max(punto_pareggio_medio, 0.1)
                 }
@@ -317,9 +317,9 @@ with col_p1:
         ))
         
         fig_gauge.update_layout(margin=dict(l=10, r=10, t=30, b=10), height=180, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
-        st.plotly_chart(fig_gauge, use_container_width=True, key="gauge_v75_ultimate")
+        st.plotly_chart(fig_gauge, use_container_width=True, key="gauge_v80_institutional")
         
-        # LEGENDA MATEMATICA DINAMICA: Ora i numeri sono espliciti e inequivocabili
+        # LEGENDA DINAMICA ISTITUZIONALE
         leg_col1, leg_col2 = st.columns(2)
         with leg_col1:
             st.markdown(f"""
@@ -330,9 +330,9 @@ with col_p1:
             """, unsafe_allow_html=True)
         with leg_col2:
             st.markdown(f"""
-                <div style='text-align:center; background-color:#FFF5F5; padding:6px; border-radius:6px; border:1px solid #FEE2E2;'>
-                    <p style='font-size:11px; color:#DC2626; margin:0;'>🟥 <b>Linea Rossa (BEP)</b></p>
-                    <p style='font-size:13px; color:#DC2626; font-weight:700; margin:2px 0;'>€ {punto_pareggio_medio:,.2f}</p>
+                <div style='text-align:center; background-color:#EFF6FF; padding:6px; border-radius:6px; border:1px solid #BFDBFE;'>
+                    <p style='font-size:11px; color:#1E3A8A; margin:0;'>🟦 <b>Linea Blu (Soglia BEP)</b></p>
+                    <p style='font-size:13px; color:#1E3A8A; font-weight:700; margin:2px 0;'>€ {punto_pareggio_medio:,.2f}</p>
                 </div>
             """, unsafe_allow_html=True)
             
