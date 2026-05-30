@@ -112,11 +112,13 @@ if not st.session_state.autenticato:
     
     st.markdown("<div class='btn-container-minimal'>", unsafe_allow_html=True)
     if st.button("ACCEDI AL SOFTWARE", use_container_width=True):
+        # Definiamo la variabile qui all'inizio così Python la vede al 100%
+        accesso_consentito = True 
+        
         risultato = esegui_query("SELECT password, azienda FROM utenti WHERE username = ?", (user_input,), fetch="one")
         if risultato and risultato[0] == pass_input:
             
             # 🔐 CONTROLLO KILL-SWITCH (BLOCCO 12 MESI)
-            accesso_consentito = True
             if user_input.lower() not in ['arteq', 'monica', 'luca']:
                 try:
                     import datetime
@@ -144,7 +146,7 @@ if not st.session_state.autenticato:
             st.error("❌ Credenziali errate. Riprova.")
             
     st.markdown("</div></div>", unsafe_allow_html=True)
-    st.stop() # <--- REINSERITO IL BLOCCO DI SICUREZZA QUI! FONDAMENTALE.
+    st.stop()
 # --- 4. STILE DASHBOARD REALE ---
 st.markdown("""
     <style>
