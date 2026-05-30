@@ -595,7 +595,8 @@ st.dataframe(
     },
     hide_index=True, 
     use_container_width=True,
-    height=490 # 🔥 MODIFICATO QUI: Quei 35 pixel in più che eliminano l'ultimo microscopico movimento!
+    height=490
+)
 
 # --- 11. MOTORE DI AUTOMAZIONE COMUNICAZIONE & EMAIL ---
 import smtplib
