@@ -76,6 +76,13 @@ if not st.session_state.autenticato:
         <style>
         .stApp { background-color: #EBF0F5 !important; } 
         .login-minimal-container { max-width: 530px; margin: 120px auto; text-align: center; }
+        /* Nasconde il pulsante di amministrazione anche per il proprietario dell'app */
+        .stActionButton, 
+        button[data-testid="stActionButton"],
+        div[data-testid="stDeploymentViewer"] {
+            display: none !important;
+            visibility: hidden !important;
+        }
         
         /* 👁️ 1. OCULTAMENTO TOTALE HEADER SUPERIORE */
         header[data-testid="stHeader"], div[data-testid="stHeader"] {
