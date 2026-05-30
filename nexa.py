@@ -77,30 +77,29 @@ if not st.session_state.autenticato:
         .stApp { background-color: #EBF0F5 !important; } 
         .login-minimal-container { max-width: 530px; margin: 120px auto; text-align: center; }
         
-        /* 👁️ 1. OCULTAMENTO TOTALE HEADER E STRUMENTI DI CONDIVISIONE STREAMLIT */
-        header[data-testid="stHeader"], 
-        div[data-testid="stHeader"] {
+        /* 👁️ 1. OCULTAMENTO TOTALE HEADER SUPERIORE */
+        header[data-testid="stHeader"], div[data-testid="stHeader"] {
             visibility: hidden !important;
             height: 0px !important;
             display: none !important;
         }
         
-        /* 👁️ 2. COLPO DI SPUGNA DEFINITIVO SUL TASTO NERO MANAGE APP E QUALSIASI ELEMENTO FISSO */
-        footer, #MainMenu, .stDeployButton { 
-            visibility: hidden !important; 
-            display: none !important; 
-        }
+        /* 👁️ 2. DISATTIVAZIONE ELEMENTI STRUTTURALI IN BASSO (PULSANTE MANAGE APP) */
+        footer { visibility: hidden !important; display: none !important; }
+        #MainMenu { visibility: hidden !important; display: none !important; }
+        .stDeployButton { visibility: hidden !important; display: none !important; }
         
-        /* Regola d'acciaio: intercetta e distrugge qualsiasi contenitore ancorato sul fondo dello schermo */
-        div[style*="position: fixed"], 
-        div[style*="position:fixed"],
+        /* Intercettiamo l'elemento nativo del cloud colpendolo in ogni sua variante */
+        [data-testid="stAppDeployDocsWrapper"],
+        [data-testid="stAppDeployDocsWrapper"] button,
         button[id*="manage-app"],
-        div[class*="stDeployButton"] {
+        div[class*="stAppDeployDocsWrapper"] {
             display: none !important;
             visibility: hidden !important;
             opacity: 0 !important;
             height: 0px !important;
             width: 0px !important;
+            pointer-events: none !important;
         }
         
         /* 🎯 3. CENTRATURA E SIMMETRIA DEI TESTI DI INGRESSO */
@@ -116,7 +115,7 @@ if not st.session_state.autenticato:
         
         input { color: #0F172A !important; font-weight: 600 !important; font-size: 19px !important; text-align: center !important; }
         
-        /* MASCHERA DI PROTEZIONE PER IL CAMPO PASSWORD */
+        /* MASCHERA DI PROTECTION PER IL CAMPO PASSWORD */
         .scudo-password-input input {
             -webkit-text-security: disk !important; 
             text-security: disk !important;
@@ -151,8 +150,7 @@ if not st.session_state.autenticato:
             st.error("❌ Credenziali errate. Riprova.")
             
     st.markdown("</div></div>", unsafe_allow_html=True)
-    st.stop() # <-- COMPRESO LO STOP: SE NON SEI LOGGATO, IL CODICE SI FERMA QUI.
-
+    st.stop()
 # --- 4. STILE DASHBOARD REALE ---
 st.markdown("""
     <style>
