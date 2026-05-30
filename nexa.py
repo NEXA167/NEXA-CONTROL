@@ -154,11 +154,12 @@ if not st.session_state.autenticato:
     st.markdown("<p class='login-subtitle-minimal'>Pannello di Accesso Server Predittivo</p>", unsafe_allow_html=True)
     
     st.markdown("<p class='field-label-minimal'>👤 USERNAME</p>", unsafe_allow_html=True)
-    user_input = st.text_input("Codice Ingresso Server", label_visibility="collapsed", autocomplete="off", key="nexa_control_login_user_final_v100").strip().lower()
+    # 🎯 VERSIONE UNIVERSALE ANTI-BANNER (Valida per Firefox, Chrome, Edge, Safari)
+    user_input = st.text_input("Codice Ingresso Server", label_visibility="collapsed", autocomplete="off", key="nexa_universal_gate_usr_v100").strip().lower()
     
     st.markdown("<p class='field-label-minimal'>🔒 PASSWORD</p>", unsafe_allow_html=True)
-    # 🎯 RIPRISTINO DEI PALLINI NERI: Aggiunto type="password" e cambiata la chiave per azzerare la memoria di TIM
-    pass_input = st.text_input("Chiave Verifica Server", label_visibility="collapsed", type="password", autocomplete="new-password", key="nexa_control_login_key_final_v100")
+    # 🎯 RIPRISTINO PALLINI + BLOCCO AUTOFILL: Usiamo "new-password" e una chiave senza la parola "login"
+    pass_input = st.text_input("Chiave Verifica Server", label_visibility="collapsed", type="password", autocomplete="new-password", key="nexa_universal_gate_pwd_v100")
     st.markdown("</div>", unsafe_allow_html=True)
     
     st.markdown("<div class='btn-container-minimal'>", unsafe_allow_html=True)
