@@ -534,8 +534,8 @@ def invia_email_onboarding(email_destinatario, nome_cliente, username_generato, 
     # PARAMETRI CONFIGURATI PER MICROSOFT OUTLOOK / OFFICE 365
     SMTP_SERVER = "smtp.office365.com"  # Server ufficiale Microsoft
     SMTP_PORT = 587                     # Porta standard per connessione STARTTLS
-    EMAIL_MITTENTE = "info@arteq.it"  # La tua mail di Outlook o quella aziendale di Monica (es. amministrazione@...)
-    PASSWORD_APPLICAZIONE = "cklkgllflhdpfqbw" # La password per l'app generata da Microsoft
+    EMAIL_MITTENTE = "info@arteq.it"    # La tua mail di Outlook
+    PASSWORD_APPLICAZIONE = "cklkgllflhdpfqbw" # La tua password per l'app generata da Microsoft
     
     # Costruzione del messaggio in HTML elegante e coordinato
     messaggio = MIMEMultipart()
@@ -573,7 +573,7 @@ def invia_email_onboarding(email_destinatario, nome_cliente, username_generato, 
     messaggio.attach(MIMEText(corpo_html, "html"))
     
     try:
-        # Connessione sicura al server SMTP ed invio reale
+        # CHIUSETURA MOTORE SMTP (Mancava questo pezzo per far partire il comando reale)
         server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
         server.starttls()
         server.login(EMAIL_MITTENTE, PASSWORD_APPLICAZIONE)
@@ -581,8 +581,9 @@ def invia_email_onboarding(email_destinatario, nome_cliente, username_generato, 
         server.quit()
         return True
     except Exception as e:
-        print(f"Errore di invio email: {str(e)}")
+        print(f"Errore reale di invio: {str(e)}")
         return False
+        
     # --- 12. INTERFACCIA DI AMMINISTRAZIONE E INVIO ONBOARDING ---
 if st.session_state.autenticato and st.session_state.utente_attuale.lower() in ['arteq', 'monica']:
     st.sidebar.markdown("---")
