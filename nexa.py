@@ -385,15 +385,18 @@ with col_p3:
 st.markdown("---")
 st.markdown("### 💸 4. Monitoraggio Flusso di Cassa Reale & Allerte")
 
-# INIEZIONE CSS PER RIDURRE LE COLONNE ED ELIMINARE LO SCROLL CURSORE
+# INIEZIONE CSS ULTRA-COMPATTARE PER ABBATTERE LO SCROLL LATERALE
 st.markdown("""
     <style>
-    .stDataFrame, div[data-testid="stDataFrame"] {
+    /* Riduce drasticamente il font di tutte le tabelle dati e le costringe nel perimetro */
+    .stDataFrame, div[data-testid="stDataFrame"], div[data-testid="stTable"] {
         width: 100% !important;
-        font-size: 12px !important;
+        max-width: 100% !important;
+        font-size: 11px !important;
     }
+    /* Comprime i margini interni delle celle per risparmiare spazio prezioso orizzontale */
     div[data-testid="stDataFrame"] td, div[data-testid="stDataFrame"] th {
-        padding: 3px 5px !important;
+        padding: 2px 4px !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -508,16 +511,16 @@ st.subheader("📅 Registro Storico di Controllo")
 st.dataframe(
     db_utente,
     column_config={
-        "Mese": st.column_config.TextColumn("Mese"), 
-        "Fatturato": st.column_config.NumberColumn("Fatturato", format="€ %,.2f"),
-        "Margine %": st.column_config.NumberColumn("Margine %", format="%,.2f"), 
-        "Saldo Banca (Cassa)": st.column_config.NumberColumn("Cassa", format="€ %,.2f"),
-        "Costi Variabili": st.column_config.NumberColumn("Fornitori Componenti (Var.)", format="€ %,.2f"), 
-        "Costi Fissi (Fornitori)": st.column_config.NumberColumn("Spese Fisse Struttura", format="€ %,.2f"),
-        "Mutui e Leasing": st.column_config.NumberColumn("Mutui/Leasing", format="€ %,.2f"), 
-        "Debiti IVA e Contributi": st.column_config.NumberColumn("IVA/INPS", format="€ %,.2f"),
-        "Valore Magazzino": st.column_config.NumberColumn("Magazzino", format="€ %,.2f"), 
-        "Punto di Pareggio": st.column_config.NumberColumn("Punto Pareggio", format="€ %,.2f")
+        "Mese": st.column_config.TextColumn("Mese", width="small"), 
+        "Fatturato": st.column_config.NumberColumn("Fatturato", format="€ %,.0f", width="small"),
+        "Margine %": st.column_config.NumberColumn("Marg. %", format="%,.2f", width="small"), 
+        "Saldo Banca (Cassa)": st.column_config.NumberColumn("Cassa", format="€ %,.0f", width="small"),
+        "Costi Variabili": st.column_config.NumberColumn("Forn. Componenti", format="€ %,.0f", width="small"), 
+        "Costi Fissi (Fornitori)": st.column_config.NumberColumn("Spese Fisse", format="€ %,.0f", width="small"),
+        "Mutui e Leasing": st.column_config.NumberColumn("Leasing", format="€ %,.0f", width="small"), 
+        "Debiti IVA e Contributi": st.column_config.NumberColumn("IVA/INPS", format="€ %,.0f", width="small"),
+        "Valore Magazzino": st.column_config.NumberColumn("Magazzino", format="€ %,.0f", width="small"), 
+        "Punto di Pareggio": st.column_config.NumberColumn("BEP", format="€ %,.0f", width="small")
     },
     hide_index=True, use_container_width=True
 )
