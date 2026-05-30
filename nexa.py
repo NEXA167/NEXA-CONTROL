@@ -297,8 +297,9 @@ with col_p1:
     if media_fatturato > 0 or punto_pareggio_medio > 0:
         valore_max = max(punto_pareggio_medio * 1.5, media_fatturato * 1.2, 50000)
         fig_gauge = go.Figure(go.Indicator(
-            mode = "gauge+number", value = media_fatturato,
-            number = {'prefix': "€ ", 'valueformat': ",.2f", 'font': {'size': 22, 'color': '#0F172A'}},
+            mode = "gauge+number", 
+            value = media_fatturato,
+            number = {'prefix': "€ ", 'valueformat': ",.2f", 'font': {'size': 24, 'color': '#0F172A'}},
             domain = {'x': [0, 1], 'y': [0, 1]},
             gauge = {
                 'axis': {'range': [0, valore_max], 'tickwidth': 1, 'tickcolor': "#475569"},
@@ -310,8 +311,8 @@ with col_p1:
                 'threshold': {'line': {'color': "red", 'width': 3}, 'thickness': 0.75, 'value': max(punto_pareggio_medio, 0.1)}
             }
         ))
-        fig_gauge.update_layout(margin=dict(l=5, r=5, t=30, b=5), height=200, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
-        st.plotly_chart(fig_gauge, use_container_width=True, key="gauge_v58_final")
+        fig_gauge.update_layout(margin=dict(l=10, r=10, t=30, b=10), height=200, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
+        st.plotly_chart(fig_gauge, use_container_width=True, key="gauge_v60_final")
     else:
         st.info("📥 Inserisci i dati mensili per attivare il tachimetro.")
 
