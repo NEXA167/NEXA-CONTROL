@@ -159,7 +159,22 @@ st.markdown("""
         pointer-events: none !important;
     }
     
-    .stButton>button { background-color: #FFFFFF; color: #1E293B; border: 1px solid #CBD5E1; border-radius: 8px; font-weight: bold; padding: 8px 16px; }
+    .stButton>button { 
+    background-color: #FFFFFF !important; 
+    color: #0F172A !important; 
+    border: 2px solid #CBD5E1 !important; 
+    border-radius: 8px !important; 
+    font-size: 14px !important; 
+    font-weight: 800 !important; 
+    padding: 14px 24px !important; 
+    letter-spacing: 0.5px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02) !important;
+    transition: all 0.2s ease !important;
+}
+.stButton>button:hover {
+    border-color: #0F172A !important;
+    background-color: #F8FAFC !important;
+}
     .titolo-grafico-libero { color: #1E293B; font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
     .testo-valore-centrale { color: #0F172A; font-size: 42px; font-weight: 800; text-align: center; margin: 15px 0; }
     .kpi-mini-box { background-color: #FFFFFF; border-radius: 10px; padding: 15px; border: 1px solid #E2E8F0; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
