@@ -93,12 +93,14 @@ if not st.session_state.autenticato:
         .stApp { background-color: #EBF0F5 !important; } 
         .login-minimal-container { max-width: 530px; margin: 120px auto; text-align: center; }
         
-        /* Occultamento totale elementi strutturali cloud */
+        /* Occultamento totale elementi strutturali e pulsante Manage App in basso a destra */
         .stActionButton, button[data-testid="stActionButton"], div[data-testid="stDeploymentViewer"] { display: none !important; visibility: hidden !important; }
         header[data-testid="stHeader"], div[data-testid="stHeader"] { visibility: hidden !important; height: 0px !important; display: none !important; }
         footer, #MainMenu, .stDeployButton { visibility: hidden !important; display: none !important; }
-        [data-testid="stAppDeployDocsWrapper"], button[id*="manage-app"] { display: none !important; visibility: hidden !important; }
-        
+        [data-testid="stAppDeployDocsWrapper"], button[id*="manage-app"], [class*="viewerBadge"] { display: none !important; visibility: hidden !important; }
+        /* 🔥 BLOCCO SPECIFICO PER SPARRE IL PULSANTE IN BASSO A DESTRA */
+        iframe[title="Manage app"], div[data-testid="stSendButton"] + div, button[data-testid="baseButton-secondary"] { display: none !important; visibility: hidden !important; }
+        div[style*="position: fixed"][style*="bottom"] { display: none !important; visibility: hidden !important; }
         /* Stile e centratura dei testi istituzionali */
         .login-title-minimal { color: #0F172A; font-size: 41px; font-weight: 800; letter-spacing: -0.5px; margin: 0 auto 10px auto; text-align: center !important; display: block; width: 100%; }
         .login-subtitle-minimal { color: #64748B; font-size: 15px; margin: 0 auto 40px auto; text-align: center !important; display: block; width: 100%; }
