@@ -90,33 +90,28 @@ if not st.session_state.autenticato:
     st.markdown("""
         <style>
         .stApp { background-color: #EBF0F5 !important; } 
-        .login-minimal-container { max-width: 530px; margin: 120px auto; text-align: center; }
+        .login-minimal-container { max-width: 750px; margin: 100px auto; text-align: center; }
         
-        /* Oculamento Header e pulsanti amministrativi Cloud */
+        /* Rimozione elementi strutturali e di amministrazione Cloud */
         .stActionButton, button[data-testid="stActionButton"], div[data-testid="stDeploymentViewer"] { display: none !important; visibility: hidden !important; }
         header[data-testid="stHeader"], div[data-testid="stHeader"] { visibility: hidden !important; height: 0px !important; display: none !important; }
         footer, #MainMenu, .stDeployButton { visibility: hidden !important; display: none !important; }
         [data-testid="stAppDeployDocsWrapper"], button[id*="manage-app"] { display: none !important; visibility: hidden !important; }
         
-        /* Centratura e simmetria testi */
+        /* Stile testi intestazione */
         .login-title-minimal { color: #0F172A; font-size: 41px; font-weight: 800; letter-spacing: -0.5px; margin: 0 auto 10px auto; text-align: center !important; display: block; width: 100%; }
         .login-subtitle-minimal { color: #64748B; font-size: 15px; margin: 0 auto 40px auto; text-align: center !important; display: block; width: 100%; }
-        .field-label-minimal { color: #0F172A !important; font-size: 19px; font-weight: 700; text-align: center !important; margin-bottom: 6px; margin-top: 25px; display: block; width: 100%; }
+        .field-label-minimal { color: #0F172A !important; font-size: 17px; font-weight: 700; text-align: center !important; margin-bottom: 8px; display: block; width: 100%; }
         
-        div[data-testid="stTextInput"] { width: 55% !important; margin: 0 auto !important; }
+        /* Forza il posizionamento pulito dei box di testo */
+        div[data-testid="stTextInput"] { width: 100% !important; margin: 0 auto !important; }
         
-        /* Uniformiamo i box d'inserimento bianchi */
+        /* Design uniforme dei campi bianchi */
         div[data-baseweb="input"] { border: 2px solid #CBD5E1 !important; border-radius: 8px !important; background-color: #FFFFFF !important; }
         div[data-baseweb="input"] > div { background-color: #FFFFFF !important; }
-        input { color: #0F172A !important; font-weight: 600 !important; font-size: 19px !important; text-align: center !important; }
+        input { color: #0F172A !important; font-weight: 600 !important; font-size: 18px !important; text-align: center !important; }
         
-        /* MASCHERA DI PROTEZIONE REALE: Trasforma il testo in pallini neri senza far insospettire i browser */
-        .scudo-password-input input {
-            -webkit-text-security: disk !important; 
-            text-security: disk !important;
-        }
-        
-        /* Forziamo la disattivazione visiva delle tendine e dei micro-bottoni di autofill */
+        /* Disattivazione totale dei pop-up nativi dei browser */
         input::-webkit-contacts-auto-fill-button, 
         input::-webkit-credentials-auto-fill-button {
             visibility: hidden !important;
@@ -124,7 +119,7 @@ if not st.session_state.autenticato:
             pointer-events: none !important;
         }
         
-        .btn-container-minimal { width: 55%; margin: 40px auto 0 auto; }
+        .btn-container-minimal { width: 40%; margin: 40px auto 0 auto; }
         .btn-container-minimal button { font-size: 18px !important; font-weight: 800 !important; padding: 12px 20px !important; background-color: #0F172A !important; color: #FFFFFF !important; border-radius: 8px !important; border: none !important; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.15) !important; }
         </style>
         """, unsafe_allow_html=True)
@@ -133,15 +128,17 @@ if not st.session_state.autenticato:
     st.markdown("<h1 class='login-title-minimal'>🚀 NEXA CONTROL</h1>", unsafe_allow_html=True)
     st.markdown("<p class='login-subtitle-minimal'>Pannello di Accesso Server Predittivo</p>", unsafe_allow_html=True)
     
-    st.markdown("<p class='field-label-minimal'>👤 USERNAME</p>", unsafe_allow_html=True)
-    # Chiave blindata universale per l'username
-    user_input = st.text_input("Codice Ingresso Server", label_visibility="collapsed", autocomplete="off", key="nexa_matrix_gate_usr_v99").strip().lower()
+    # 🎯 LA SVOLTA: Dividiamo lo schermo in due colonne affiancate per ingannare il browser
+    col_usr, col_pwd = st.columns(2)
     
-    st.markdown("<p class='field-label-minimal'>🔒 PASSWORD</p>", unsafe_allow_html=True)
-    # 🔥 RIPRISTINO PALLINI NATIIVI: type="password" + autocomplete protetto + nuova chiave segreta
-    pass_input = st.text_input("Chiave Verifica Server", label_visibility="collapsed", type="password", autocomplete="new-password", key="nexa_matrix_gate_pwd_v99")
-    st.markdown("</div>", unsafe_allow_html=True)
-    
+    with col_usr:
+        st.markdown("<p class='field-label-minimal'>👤 USERNAME</p>", unsafe_allow_html=True)
+        user_input = st.text_input("Campo Verificatore Identita", label_visibility="collapsed", autocomplete="off", key="nexa_horizon_usr_v1").strip().lower()
+        
+    with col_pwd:
+        st.markdown("<p class='field-label-minimal'>🔒 PASSWORD</p>", unsafe_allow_html=True)
+        pass_input = st.text_input("Campo Verificatore Chiave", label_visibility="collapsed", type="password", autocomplete="new-password", key="nexa_horizon_pwd_v1")
+        
     st.markdown("<div class='btn-container-minimal'>", unsafe_allow_html=True)
     if st.button("ACCEDI AL SOFTWARE", use_container_width=True):
         risultato = esegui_query("SELECT password, azienda FROM utenti WHERE username = ?", (user_input,), fetch="one")
