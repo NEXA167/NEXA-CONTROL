@@ -103,7 +103,7 @@ if not st.session_state.autenticato:
         .login-subtitle-minimal { color: #64748B; font-size: 15px; margin: 0 auto 40px auto; text-align: center !important; display: block; width: 100%; }
         .field-label-minimal { color: #0F172A !important; font-size: 19px; font-weight: 700; text-align: center !important; margin-bottom: 6px; margin-top: 25px; display: block; width: 100%; }
         
-        /* RIPRISTINO LARGHEZZA ORIGINALE AL 55% */
+        /* Larghezza originale al 55% */
         div[data-testid="stTextInput"] { width: 55% !important; margin: 0 auto !important; }
         
         /* Uniformiamo i box d'inserimento bianchi */
@@ -120,20 +120,13 @@ if not st.session_state.autenticato:
     st.markdown("<h1 class='login-title-minimal'>🚀 NEXA CONTROL</h1>", unsafe_allow_html=True)
     st.markdown("<p class='login-subtitle-minimal'>Pannello di Accesso Server Predittivo</p>", unsafe_allow_html=True)
     
-    # 🎯 L'ESCA PER IL BROWSER: Campi finti invisibili. Il browser scaricherà il suo banner qui dentro senza che tu lo veda!
-    st.markdown("""
-        <div style="display:none;">
-            <input type="text" name="username_fake"/>
-            <input type="password" name="password_fake"/>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    # --- CAMPI REALI RIPRISTINATI ALLA GRAFICA ORIGINALE ---
     st.markdown("<p class='field-label-minimal'>👤 USERNAME</p>", unsafe_allow_html=True)
-    user_input = st.text_input("Codice Ingresso Plancia", label_visibility="collapsed", key="nexa_real_user_field").strip().lower()
+    # 🎯 CHIAVE NEUTRA SENZA INNESCHI AUTOFILL
+    user_input = st.text_input("Dato Alfa", label_visibility="collapsed", autocomplete="off", key="nx_alfa_data").strip().lower()
     
     st.markdown("<p class='field-label-minimal'>🔒 PASSWORD</p>", unsafe_allow_html=True)
-    pass_input = st.text_input("Chiave Ingresso Plancia", label_visibility="collapsed", type="password", key="nexa_real_pass_field")
+    # 🎯 CHIAVE NEUTRA + TYPE PASSWORD STANDARD CON OCCHIETTO
+    pass_input = st.text_input("Dato Beta", label_visibility="collapsed", type="password", autocomplete="off", key="nx_beta_data")
     
     st.markdown("<div class='btn-container-minimal'>", unsafe_allow_html=True)
     if st.button("ACCEDI AL SOFTWARE", use_container_width=True):
