@@ -4,40 +4,14 @@ import numpy as np
 import plotly.graph_objects as go
 import sqlite3
 
-# --- SCUDO GLOBALE: OCCULTAMENTO STRUTTURE CLOUD STREAMLIT ---
-st.markdown("""
-    <style>
-    /* Nasconde header, footer, menu e scritte di deployment ovunque */
-    .stActionButton, button[data-testid="stActionButton"], div[data-testid="stDeploymentViewer"] { display: none !important; visibility: hidden !important; }
-    header[data-testid="stHeader"], div[data-testid="stHeader"] { visibility: hidden !important; height: 0px !important; display: none !important; }
-    footer, #MainMenu, .stDeployButton { visibility: hidden !important; display: none !important; }
-    [data-testid="stAppDeployDocsWrapper"], button[id*="manage-app"], [class*="viewerBadge"] { display: none !important; visibility: hidden !important; }
-    
-    /* 🔥 ULTRA-KILLER GLOBALE PER IL PULSANTE "MANAGE APP" IN BASSO A DESTRA */
-    iframe[title="Manage app"], 
-    div[data-testid="stManageAppForm"], 
-    div[data-testid="stManageAppForm"] button,
-    [id*="manage-app"],
-    .stAppViewBlockContainer + div,
-    div[style*="position: fixed"][style*="bottom"][style*="right"],
-    div[style*="position:fixed"][style*="bottom:0"],
-    .stApp > div:last-child { 
-        display: none !important; 
-        visibility: hidden !important; 
-        opacity: 0 !important;
-        pointer-events: none !important;
-        height: 0px !important;
-        width: 0px !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
+# 🥇 REGOLA TASSONOMICA DI STREAMLIT: Questa deve essere SEMPRE la prima riga eseguita!
+st.set_page_config(page_title="Nexa SaaS Platform", layout="wide", initial_sidebar_state="collapsed")
 
 # --- 1. FUNZIONE DATABASE (THREAD-SAFE) ---
 def esegui_query(query, params=(), fetch="none", ritorna_df=False):
     conn = sqlite3.connect("nexa_cloud.db", check_same_thread=False)
     
     if ritorna_df:
-        # Se il software chiede un DataFrame per le tabelle, usa Pandas direttamente
         df = pd.read_sql_query(query, conn, params=params)
         conn.close()
         return df
@@ -54,32 +28,19 @@ def esegui_query(query, params=(), fetch="none", ritorna_df=False):
 # Righe di manutenzione per aggiornare il database esistente
 try:
     esegui_query("ALTER TABLE dati_mensili ADD COLUMN scadenze_attive REAL DEFAULT 0.0;")
-except:
-    pass
-
-try:
-    esegui_query("ALTER TABLE dati_mensili ADD COLUMN rateizzazioni_extra REAL DEFAULT 0.0;")
-except:
-    pass
-
-# Righe di manutenzione per aggiornare il database esistente (NON TOCCARE LE VECCHIE)
-try:
-    esegui_query("ALTER TABLE dati_mensili ADD COLUMN scadenze_attive REAL DEFAULT 0.0;")
 except: pass
 
 try:
     esegui_query("ALTER TABLE dati_mensili ADD COLUMN rateizzazioni_extra REAL DEFAULT 0.0;")
 except: pass
 
-# AGGIUNGI QUESTA NUOVA RIGA DI MANUTENZIONE QUI SOTTO:
 try:
     esegui_query("ALTER TABLE dati_mensili ADD COLUMN finanziamenti_extra REAL DEFAULT 0.0;")
 except: pass
 
-# Inizializzazione tabelle aziendali (SOSTITUISCI CON QUESTA NUOVA STRUTTURA)
+# Inizializzazione tabelle aziendali
 esegui_query("CREATE TABLE IF NOT EXISTS utenti (username TEXT PRIMARY KEY, password TEXT, azienda TEXT)")
 
-# 🛡️ INNESTO CHIRURGICO: MIGRAZIONE AUTOMATICA COLONNE MANCANTI UTENTI
 try:
     esegui_query("ALTER TABLE utenti ADD COLUMN email TEXT DEFAULT '';")
 except: pass
@@ -92,7 +53,6 @@ try:
     esegui_query("ALTER TABLE utenti ADD COLUMN stato_licenza TEXT DEFAULT 'ATTIVO';")
 except: pass
 
-
 esegui_query("""
     CREATE TABLE IF NOT EXISTS dati_mensili (
         id TEXT PRIMARY KEY, username TEXT, mese TEXT, fatturato REAL,
@@ -101,16 +61,16 @@ esegui_query("""
         scadenze_attive REAL, rateizzazioni_extra REAL, finanziamenti_extra REAL
     )
 """)
-# 🔥 FORZIAMO IL RIPRISTINO DELLE CREDENZIALI AD OGNI AVVIO CON "OR REPLACE"
+
+# 🔥 LASCIAMO SOLO ARTEQ VINCOLATO, ELIMINANDO I RESET AUTOMATICI DI LUCA E MONICA
 esegui_query("INSERT OR REPLACE INTO utenti (username, password, azienda) VALUES ('arteq', 'bloom2026', 'Arteq S.r.l.')")
-esegui_query("INSERT OR REPLACE INTO utenti (username, password, azienda) VALUES ('monica', 'monica2026', 'MONICA')")
 
-# --- 2. CONFIGURAZIONE PAGINA ED ELEGANZA VISIVA ---
-st.set_page_config(page_title="Nexa SaaS Platform", layout="wide", initial_sidebar_state="collapsed")
-
+# --- 2. INIZIALIZZAZIONE STATO DELLA SESSIONE ---
 if "autenticato" not in st.session_state:
     st.session_state.autenticato = False
+if "utente_attuale" not in st.session_state:
     st.session_state.utente_attuale = ""
+if "azienda_attuale" not in st.session_state:
     st.session_state.azienda_attuale = ""
     
 # --- 3. SCHERMATA DI LOGIN ULTRA-BLINDATA ANTI AUTOFILL ---
@@ -120,6 +80,12 @@ if not st.session_state.autenticato:
         /* Sfondo generale della pagina */
         .stApp { background-color: #EBF0F5 !important; } 
         .login-minimal-container { max-width: 530px; margin: 120px auto; text-align: center; }
+        
+        /* Occultamento totale elementi strutturali e pulsante Manage App in basso a destra */
+        .stActionButton, button[data-testid="stActionButton"], div[data-testid="stDeploymentViewer"] { display: none !important; visibility: hidden !important; }
+        header[data-testid="stHeader"], div[data-testid="stHeader"] { visibility: hidden !important; height: 0px !important; display: none !important; }
+        footer, #MainMenu, .stDeployButton { visibility: hidden !important; display: none !important; }
+        [data-testid="stAppDeployDocsWrapper"], button[id*="manage-app"], [class*="viewerBadge"] { display: none !important; visibility: hidden !important; }
         
         /* Stile e centratura dei testi istituzionali */
         .login-title-minimal { color: #0F172A; font-size: 41px; font-weight: 800; letter-spacing: -0.5px; margin: 0 auto 10px auto; text-align: center !important; display: block; width: 100%; }
@@ -150,7 +116,7 @@ if not st.session_state.autenticato:
     st.markdown("<p class='field-label-minimal'>👤 USERNAME</p>", unsafe_allow_html=True)
     user_input = st.text_input("Codice Controllo Utente", label_visibility="collapsed", autocomplete="off", key="nexa_final_usr_field").strip().lower()
     
-    # Campo Password: Senza inneschi nativi, testo in chiaro per azzerare i popup del browser
+    # Campo Password: Testo in chiaro anti-banner locale
     st.markdown("<p class='field-label-minimal'>🔒 PASSWORD</p>", unsafe_allow_html=True)
     pass_input = st.text_input("Codice Controllo Password", label_visibility="collapsed", autocomplete="off", key="nexa_final_pwd_field")
     
