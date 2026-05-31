@@ -4,6 +4,32 @@ import numpy as np
 import plotly.graph_objects as go
 import sqlite3
 
+# --- SCUDO GLOBALE: OCCULTAMENTO STRUTTURE CLOUD STREAMLIT ---
+st.markdown("""
+    <style>
+    /* Nasconde header, footer, menu e scritte di deployment ovunque */
+    .stActionButton, button[data-testid="stActionButton"], div[data-testid="stDeploymentViewer"] { display: none !important; visibility: hidden !important; }
+    header[data-testid="stHeader"], div[data-testid="stHeader"] { visibility: hidden !important; height: 0px !important; display: none !important; }
+    footer, #MainMenu, .stDeployButton { visibility: hidden !important; display: none !important; }
+    [data-testid="stAppDeployDocsWrapper"], button[id*="manage-app"], [class*="viewerBadge"] { display: none !important; visibility: hidden !important; }
+    
+    /* KILLER GLOBALE PER IL PULSANTE IN BASSO A DESTRA "MANAGE APP" */
+    iframe[title="Manage app"], 
+    div[data-testid="stManageAppForm"], 
+    div[data-testid="stManageAppForm"] button,
+    [id*="manage-app"],
+    div[style*="position: fixed"][style*="bottom"][style*="right"],
+    .stApp > div[style*="position: fixed"] { 
+        display: none !important; 
+        visibility: hidden !important; 
+        opacity: 0 !important;
+        pointer-events: none !important;
+        height: 0px !important;
+        width: 0px !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 # --- 1. FUNZIONE DATABASE (THREAD-SAFE) ---
 def esegui_query(query, params=(), fetch="none", ritorna_df=False):
     conn = sqlite3.connect("nexa_cloud.db", check_same_thread=False)
@@ -93,25 +119,6 @@ if not st.session_state.autenticato:
         .stApp { background-color: #EBF0F5 !important; } 
         .login-minimal-container { max-width: 530px; margin: 120px auto; text-align: center; }
         
-        /* Occultamento totale elementi strutturali e pulsante Manage App in basso a destra */
-        .stActionButton, button[data-testid="stActionButton"], div[data-testid="stDeploymentViewer"] { display: none !important; visibility: hidden !important; }
-        header[data-testid="stHeader"], div[data-testid="stHeader"] { visibility: hidden !important; height: 0px !important; display: none !important; }
-        footer, #MainMenu, .stDeployButton { visibility: hidden !important; display: none !important; }
-        [data-testid="stAppDeployDocsWrapper"], button[id*="manage-app"], [class*="viewerBadge"] { display: none !important; visibility: hidden !important; }
-        
-        /* 🔥 KILLER DEFINITIVO PER IL PULSANTE IN BASSO A DESTRA (DENTRO E FUORI IL LOGIN) */
-        iframe[title="Manage app"], 
-        div[data-testid="stManageAppForm"], 
-        div[data-testid="stManageAppForm"] button,
-        [id*="manage-app"],
-        div[style*="position: fixed"][style*="bottom"][style*="right"] { 
-            display: none !important; 
-            visibility: hidden !important; 
-            opacity: 0 !important;
-            pointer-events: none !important;
-            height: 0px !important;
-            width: 0px !important;
-        }
         /* Stile e centratura dei testi istituzionali */
         .login-title-minimal { color: #0F172A; font-size: 41px; font-weight: 800; letter-spacing: -0.5px; margin: 0 auto 10px auto; text-align: center !important; display: block; width: 100%; }
         .login-subtitle-minimal { color: #64748B; font-size: 15px; margin: 0 auto 40px auto; text-align: center !important; display: block; width: 100%; }
