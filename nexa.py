@@ -326,13 +326,14 @@ with header_col3:
         st.session_state.autenticato = False
         st.session_state.utente_attuale = ""
         st.rerun()
-    # Iniezione EBITDA e DSCR sotto al logout con scritte maggiorate
+    # Iniezione EBITDA e DSCR sotto al logout con scritte maggiorate e chiusura blindata
     st.markdown(f"""
         <div style='background-color:#FFFFFF; padding:15px; border-radius:6px; border:1px solid #E2E8F0; text-align:center; margin-top:5px; box-shadow:0 1px 2px rgba(0,0,0,0.02);'>
             <p style='color:#64748B; font-size:13px; font-weight:800; text-transform:uppercase; margin:0;'>📊 EBITDA | {txt_dscr}</p>
             <h4 style='color:{colore_ebitda}; margin:8px 0 0 0; font-size:22px; font-weight:900;'>€ {ebitda_stimato:,.2f}</h4>
         </div>
-    """,
+    """, unsafe_allow_html=True)
+    st.markdown("<br><br>", unsafe_allow_html=True)
         
     st.markdown(f"""
         <div style='background-color:#FFFFFF; padding:8px; border-radius:6px; border:1px solid #E2E8F0; text-align:center; margin-top:5px; box-shadow:0 1px 2px rgba(0,0,0,0.02);'>
