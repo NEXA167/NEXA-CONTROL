@@ -85,19 +85,21 @@ if "autenticato" not in st.session_state:
     st.session_state.utente_attuale = ""
     st.session_state.azienda_attuale = ""
 # --- 3. SCHERMATA DI LOGIN ULTRA-BLINDATA ANTI AUTOFILL ---
+import time
+
 if not st.session_state.autenticato:
     st.markdown("""
         <style>
         .stApp { background-color: #EBF0F5 !important; } 
         .login-minimal-container { max-width: 530px; margin: 120px auto; text-align: center; }
         
-        /* Oculamento Header e pulsanti amministrativi Cloud */
+        /* Occultamento Header e pulsanti amministrativi Cloud */
         .stActionButton, button[data-testid="stActionButton"], div[data-testid="stDeploymentViewer"] { display: none !important; visibility: hidden !important; }
         header[data-testid="stHeader"], div[data-testid="stHeader"] { visibility: hidden !important; height: 0px !important; display: none !important; }
         footer, #MainMenu, .stDeployButton { visibility: hidden !important; display: none !important; }
         [data-testid="stAppDeployDocsWrapper"], button[id*="manage-app"] { display: none !important; visibility: hidden !important; }
         
-        /* Centratura e simmetria testi originale */
+        /* Centratura e simmetria testi originale verticale */
         .login-title-minimal { color: #0F172A; font-size: 41px; font-weight: 800; letter-spacing: -0.5px; margin: 0 auto 10px auto; text-align: center !important; display: block; width: 100%; }
         .login-subtitle-minimal { color: #64748B; font-size: 15px; margin: 0 auto 40px auto; text-align: center !important; display: block; width: 100%; }
         .field-label-minimal { color: #0F172A !important; font-size: 19px; font-weight: 700; text-align: center !important; margin-bottom: 6px; margin-top: 25px; display: block; width: 100%; }
@@ -109,12 +111,15 @@ if not st.session_state.autenticato:
         div[data-baseweb="input"] > div { background-color: #FFFFFF !important; }
         input { color: #0F172A !important; font-weight: 600 !important; font-size: 19px !important; text-align: center !important; }
         
-        /* Disattivazione pulsanti interni dei browser */
+        /* 🛑 CECCHINO ANTI-AUTOFILL: Forziamo la scomparsa totale delle icone e dei menu di gestione password */
         input::-webkit-contacts-auto-fill-button, 
-        input::-webkit-credentials-auto-fill-button {
+        input::-webkit-credentials-auto-fill-button,
+        input::-ms-clear,
+        .caps-lock-indicator {
             visibility: hidden !important;
             display: none !important;
             pointer-events: none !important;
+            opacity: 0 !important;
         }
         
         .btn-container-minimal { width: 55%; margin: 40px auto 0 auto; }
@@ -126,13 +131,14 @@ if not st.session_state.autenticato:
     st.markdown("<h1 class='login-title-minimal'>🚀 NEXA CONTROL</h1>", unsafe_allow_html=True)
     st.markdown("<p class='login-subtitle-minimal'>Pannello di Accesso Server Predittivo</p>", unsafe_allow_html=True)
     
+    # 🎯 GENERATORE DI CHIAVI DINAMICHE: Cambia a ogni millisecondo, impedendo al browser di riconoscere il campo
+    token_temporale = str(int(time.time() * 1000))
+    
     st.markdown("<p class='field-label-minimal'>👤 USERNAME</p>", unsafe_allow_html=True)
-    # Cambiato in autocomplete="username" per assecondare la lettura standard dei browser senza attivare i gestori password
-    user_input = st.text_input("Codice Ingresso Server", label_visibility="collapsed", autocomplete="username", key="nexa_val_usr_v100").strip().lower()
+    user_input = st.text_input("Codice Identita", label_visibility="collapsed", autocomplete="off", key=f"usr_token_{token_temporale}").strip().lower()
     
     st.markdown("<p class='field-label-minimal'>🔒 PASSWORD</p>", unsafe_allow_html=True)
-    # 🔥 LA SVOLTA UNIVERSALE: autocomplete="one-time-code" impedisce a Firefox di proporre la generazione di nuove password!
-    pass_input = st.text_input("Chiave Verifica Server", label_visibility="collapsed", type="password", autocomplete="one-time-code", key="nexa_val_pwd_v100")
+    pass_input = st.text_input("Chiave Identita", label_visibility="collapsed", type="password", autocomplete="new-password", key=f"pwd_token_{token_temporale}")
     
     st.markdown("<div class='btn-container-minimal'>", unsafe_allow_html=True)
     if st.button("ACCEDI AL SOFTWARE", use_container_width=True):
