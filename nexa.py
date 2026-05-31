@@ -647,14 +647,10 @@ def invia_email_onboarding(email_destinatario, nome_cliente, username_generato, 
  # --- 12. INTERFACCIA AMMINISTRAZIONE, GESTIONE LICENZE (12 MESI) & CANCELLAZIONE ---
 import datetime
 
-# Verifichiamo l'accesso amministrativo in modo isolato per non sballare gli utenti esterni
-is_admin = st.session_state.get("autenticato", False) and st.session_state.get("utente_attuale", "").lower() in ['arteq', 'monica']
-
-if is_admin:
+if st.session_state.autenticato and st.session_state.utente_attuale.lower() in ['arteq', 'monica']:
     st.markdown("---")
     st.markdown("## ⚙️ Pannello di Controllo Licenze & Onboarding")
     
-    # Creiamo due Tab per dividere la creazione dalla gestione senza fare confusione
     tab_crea, tab_gestisci = st.tabs(["🚀 Attiva Nuovo Partner", "👥 Gestione & Revoca Licenze"])
     
     with tab_crea:
@@ -665,18 +661,15 @@ if is_admin:
             nuova_email = st.text_input("Email di Destinazione", placeholder="Es. info@nexaplatform.it", key="add_email")
         
         with col2:
-            # 🎯 AUTOMATISMO USERNAME: Genera il suggerimento pulito
             suggerimento_user = nuovo_nome.lower().replace(" ", "").replace(".", "")[:10] if nuovo_nome else "nuovopartner"
             nuovo_username = st.text_input("Codice Utente Partner", value=suggerimento_user, placeholder="Es: gricaf", key="partner_secure_code_final_v100")
-            
-            # 🎯 RIPRISTINO IN CHIARO: Rimosso type="password" così vedi la chiave prima di mandare la mail!
             nuova_password = st.text_input("Chiave Accesso Temporanea", value="nexa2026!", placeholder="Password iniziale", key="partner_secure_key_final_v100")
+            
         if st.button("🚀 GENERA ACCOUNT E INVIA MAIL", use_container_width=True):
             if nuovo_nome and nuova_email and nuovo_username and nuova_password:
                 with st.spinner("Creazione profilo e configurazione licenza 12 mesi..."):
-                    
                     data_odierna = datetime.date.today().strftime("%Y-%m-%d")
-                    
+                    db_salvato = False
                     try:
                         esegui_query(
                             "INSERT OR REPLACE INTO utenti (username, password, azienda, email, data_creazione, stato_licenza) VALUES (?, ?, ?, ?, ?, ?)",
@@ -695,16 +688,12 @@ if is_admin:
                             db_salvato = True
                         except:
                             st.error("Errore nell'aggiornamento delle tabelle del Database.")
-                            db_salvato = False
                     
                     if db_salvato:
-                        # Mandiamo i dati alla funzione mail
-                        invio_successo = invia_email_onboarding(nuova_email, nuovo_nome, nuovo_username, nuova_password)
-                        
-                        # 🎯 PRIMO QUESITO RISOLTO: Forziamo la comparsa della scritta verde di successo fissa
+                        invia_email_onboarding(nuova_email, nuovo_nome, nuovo_username, nuova_password)
                         st.success(f"✅ Mail inviata con successo! Licenza di 12 mesi attivata per `{nuovo_username}`.")
                         st.toast("📧 Notifica inviata con successo!", icon="🚀")
-                        st.balloons() # Un piccolo effetto visivo per darti la certezza assoluta
+                        st.balloons()
 
     with tab_gestisci:
         st.markdown("### 🛠️ Monitoraggio Scadenze e Revoca Accessi")
