@@ -75,7 +75,6 @@ esegui_query("""
 """)
 # 🔥 FORZIAMO IL RIPRISTINO DELLE CREDENZIALI AD OGNI AVVIO CON "OR REPLACE"
 esegui_query("INSERT OR REPLACE INTO utenti (username, password, azienda) VALUES ('arteq', 'bloom2026', 'Arteq S.r.l.')")
-esegui_query("INSERT OR REPLACE INTO utenti (username, password, azienda) VALUES ('luca', 'nexa123', 'Consulenza Luca')")
 esegui_query("INSERT OR REPLACE INTO utenti (username, password, azienda) VALUES ('monica', 'monica2026', 'MONICA')")
 
 # --- 2. CONFIGURAZIONE PAGINA ED ELEGANZA VISIVA ---
