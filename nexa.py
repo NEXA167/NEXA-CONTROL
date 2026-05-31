@@ -64,6 +64,7 @@ esegui_query("""
 
 # 🔥 LASCIAMO SOLO ARTEQ VINCOLATO, ELIMINANDO I RESET AUTOMATICI DI LUCA E MONICA
 esegui_query("INSERT OR REPLACE INTO utenti (username, password, azienda) VALUES ('arteq', 'bloom2026', 'Arteq S.r.l.')")
+esegui_query("INSERT OR REPLACE INTO utenti (username, password, azienda) VALUES ('monica', 'monica2026', 'MONICA')")
 
 # --- 2. INIZIALIZZAZIONE STATO DELLA SESSIONE ---
 if "autenticato" not in st.session_state:
