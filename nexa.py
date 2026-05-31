@@ -13,13 +13,15 @@ st.markdown("""
     footer, #MainMenu, .stDeployButton { visibility: hidden !important; display: none !important; }
     [data-testid="stAppDeployDocsWrapper"], button[id*="manage-app"], [class*="viewerBadge"] { display: none !important; visibility: hidden !important; }
     
-    /* KILLER GLOBALE PER IL PULSANTE IN BASSO A DESTRA "MANAGE APP" */
+    /* 🔥 ULTRA-KILLER GLOBALE PER IL PULSANTE "MANAGE APP" IN BASSO A DESTRA */
     iframe[title="Manage app"], 
     div[data-testid="stManageAppForm"], 
     div[data-testid="stManageAppForm"] button,
     [id*="manage-app"],
+    .stAppViewBlockContainer + div,
     div[style*="position: fixed"][style*="bottom"][style*="right"],
-    .stApp > div[style*="position: fixed"] { 
+    div[style*="position:fixed"][style*="bottom:0"],
+    .stApp > div:last-child { 
         display: none !important; 
         visibility: hidden !important; 
         opacity: 0 !important;
