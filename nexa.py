@@ -89,28 +89,32 @@ if "autenticato" not in st.session_state:
 if not st.session_state.autenticato:
     st.markdown("""
         <style>
+        /* Sfondo generale della pagina */
         .stApp { background-color: #EBF0F5 !important; } 
         .login-minimal-container { max-width: 530px; margin: 120px auto; text-align: center; }
         
-        /* Occultamento elementi strutturali cloud */
+        /* Occultamento totale elementi strutturali cloud */
         .stActionButton, button[data-testid="stActionButton"], div[data-testid="stDeploymentViewer"] { display: none !important; visibility: hidden !important; }
         header[data-testid="stHeader"], div[data-testid="stHeader"] { visibility: hidden !important; height: 0px !important; display: none !important; }
         footer, #MainMenu, .stDeployButton { visibility: hidden !important; display: none !important; }
         [data-testid="stAppDeployDocsWrapper"], button[id*="manage-app"] { display: none !important; visibility: hidden !important; }
         
-        /* Centratura e simmetria testi originale verticale */
+        /* Stile e centratura dei testi istituzionali */
         .login-title-minimal { color: #0F172A; font-size: 41px; font-weight: 800; letter-spacing: -0.5px; margin: 0 auto 10px auto; text-align: center !important; display: block; width: 100%; }
         .login-subtitle-minimal { color: #64748B; font-size: 15px; margin: 0 auto 40px auto; text-align: center !important; display: block; width: 100%; }
         .field-label-minimal { color: #0F172A !important; font-size: 19px; font-weight: 700; text-align: center !important; margin-bottom: 6px; margin-top: 25px; display: block; width: 100%; }
         
-        /* Larghezza originale bloccata al 55% */
+        /* RIPRISTINO RIGIDO DELLA LARGHEZZA AL 55% */
         div[data-testid="stTextInput"] { width: 55% !important; margin: 0 auto !important; }
         
-        /* Uniformiamo i box d'inserimento bianchi */
-        div[data-basWeb="input"] { border: 2px solid #CBD5E1 !important; border-radius: 8px !important; background-color: #FFFFFF !important; }
-        div[data-basWeb="input"] > div { background-color: #FFFFFF !important; }
-        input { color: #0F172A !important; font-weight: 600 !important; font-size: 19px !important; text-align: center !important; }
+        /* REQUISITO DI BASE: Box di inserimento totalmente bianchi con bordo definito */
+        div[data-baseweb="base-input"] { border: 2px solid #CBD5E1 !important; border-radius: 8px !important; background-color: #FFFFFF !important; }
+        div[data-baseweb="base-input"] > div { background-color: #FFFFFF !important; }
         
+        /* Stile del testo digitato dentro le caselle */
+        input { color: #0F172A !important; font-weight: 600 !important; font-size: 19px !important; text-align: center !important; background-color: #FFFFFF !important; }
+        
+        /* Bottone di accesso */
         .btn-container-minimal { width: 55%; margin: 40px auto 0 auto; }
         .btn-container-minimal button { font-size: 18px !important; font-weight: 800 !important; padding: 12px 20px !important; background-color: #0F172A !important; color: #FFFFFF !important; border-radius: 8px !important; border: none !important; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.15) !important; }
         </style>
@@ -120,12 +124,13 @@ if not st.session_state.autenticato:
     st.markdown("<h1 class='login-title-minimal'>🚀 NEXA CONTROL</h1>", unsafe_allow_html=True)
     st.markdown("<p class='login-subtitle-minimal'>Pannello di Accesso Server Predittivo</p>", unsafe_allow_html=True)
     
+    # Campo Username: Grafica verticale originale
     st.markdown("<p class='field-label-minimal'>👤 USERNAME</p>", unsafe_allow_html=True)
-    user_input = st.text_input("Codice Controllo Alfa", label_visibility="collapsed", autocomplete="off", key="nx_clean_alfa").strip().lower()
+    user_input = st.text_input("Codice Controllo Utente", label_visibility="collapsed", autocomplete="off", key="nexa_final_usr_field").strip().lower()
     
+    # Campo Password: Senza inneschi nativi, testo in chiaro per azzerare i popup del browser
     st.markdown("<p class='field-label-minimal'>🔒 PASSWORD</p>", unsafe_allow_html=True)
-    # 🎯 SENZA PALLINI: Rimosso type="password" e tolto ogni riferimento. Ora i caratteri restano visibili in chiaro e il browser non attiva nessun banner.
-    pass_input = st.text_input("Codice Controllo Beta", label_visibility="collapsed", autocomplete="off", key="nx_clean_beta")
+    pass_input = st.text_input("Codice Controllo Password", label_visibility="collapsed", autocomplete="off", key="nexa_final_pwd_field")
     
     st.markdown("<div class='btn-container-minimal'>", unsafe_allow_html=True)
     if st.button("ACCEDI AL SOFTWARE", use_container_width=True):
