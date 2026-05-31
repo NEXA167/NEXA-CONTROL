@@ -135,13 +135,12 @@ if not st.session_state.autenticato:
     st.markdown("<p class='login-subtitle-minimal'>Pannello di Accesso Server Predittivo</p>", unsafe_allow_html=True)
     
     st.markdown("<p class='field-label-minimal'>👤 USERNAME</p>", unsafe_allow_html=True)
-    # Chiave di reset per l'username
-    user_input = st.text_input("Codice Ingresso Server", label_visibility="collapsed", autocomplete="off", key="nexa_shield_unv_usr_final").strip().lower()
+    # Chiave blindata universale per l'username
+    user_input = st.text_input("Codice Ingresso Server", label_visibility="collapsed", autocomplete="off", key="nexa_matrix_gate_usr_v99").strip().lower()
     
     st.markdown("<p class='field-label-minimal'>🔒 PASSWORD</p>", unsafe_allow_html=True)
-    # 🎯 CORREZIONE CHIRURGICA: Apriamo il div corretto per lo scudo visivo e togliamo type="password"
-    st.markdown("<div class='scudo-password-input'>", unsafe_allow_html=True)
-    pass_input = st.text_input("Chiave Verifica Server", label_visibility="collapsed", autocomplete="off", key="nexa_shield_unv_pwd_final")
+    # 🔥 RIPRISTINO PALLINI NATIIVI: type="password" + autocomplete protetto + nuova chiave segreta
+    pass_input = st.text_input("Chiave Verifica Server", label_visibility="collapsed", type="password", autocomplete="new-password", key="nexa_matrix_gate_pwd_v99")
     st.markdown("</div>", unsafe_allow_html=True)
     
     st.markdown("<div class='btn-container-minimal'>", unsafe_allow_html=True)
