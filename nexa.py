@@ -326,7 +326,17 @@ with header_col3:
         st.session_state.autenticato = False
         st.session_state.utente_attuale = ""
         st.rerun()
-    # Iniezione EBITDA e DSCR sotto al logout con scritte maggiorate e chiusura blindata
+        
+    # 🧠 ANTICIPO CHIRURGICO DEL CALCOLO LOGICO (Evita il NameError)
+    colore_ebitda = "#15803D" if ebitda_stimato >= 0 else "#B91C1C"
+    
+    # Verifichiamo se esistono le colonne e se ci sono dati caricati per calcolare il DSCR
+    if 'scadenze_attive' in df_attivi.columns and not df_attivi.empty and (ultime_scadenze > 0 or ultime_rateizzazioni > 0):
+        txt_dscr = f"DSCR: {dscr_calcolato:.2f}"
+    else:
+        txt_dscr = "DSCR: --"
+        
+    # Iniezione EBITDA e DSCR sotto al logout con scritte maggiorate e variabili caricate
     st.markdown(f"""
         <div style='background-color:#FFFFFF; padding:15px; border-radius:6px; border:1px solid #E2E8F0; text-align:center; margin-top:5px; box-shadow:0 1px 2px rgba(0,0,0,0.02);'>
             <p style='color:#64748B; font-size:13px; font-weight:800; text-transform:uppercase; margin:0;'>📊 EBITDA | {txt_dscr}</p>
@@ -334,7 +344,7 @@ with header_col3:
         </div>
     """, unsafe_allow_html=True)
     st.markdown("<br><br>", unsafe_allow_html=True)
-        
+          
     st.markdown(f"""
         <div style='background-color:#FFFFFF; padding:8px; border-radius:6px; border:1px solid #E2E8F0; text-align:center; margin-top:5px; box-shadow:0 1px 2px rgba(0,0,0,0.02);'>
             <p style='color:#64748B; font-size:10px; font-weight:700; text-transform:uppercase; margin:0;'>📊 EBITDA | {txt_dscr}</p>
