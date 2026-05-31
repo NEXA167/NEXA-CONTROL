@@ -91,23 +91,35 @@ if not st.session_state.autenticato:
         .stApp { background-color: #EBF0F5 !important; } 
         .login-minimal-container { max-width: 530px; margin: 120px auto; text-align: center; }
         
-        /* Occultamento Header e pulsanti amministrativi Cloud */
+        /* Occultamento elementi strutturali cloud */
         .stActionButton, button[data-testid="stActionButton"], div[data-testid="stDeploymentViewer"] { display: none !important; visibility: hidden !important; }
         header[data-testid="stHeader"], div[data-testid="stHeader"] { visibility: hidden !important; height: 0px !important; display: none !important; }
         footer, #MainMenu, .stDeployButton { visibility: hidden !important; display: none !important; }
         [data-testid="stAppDeployDocsWrapper"], button[id*="manage-app"] { display: none !important; visibility: hidden !important; }
         
-        /* Centratura e simmetria testi originale verticale */
+        /* Grafica e layout verticale originale */
         .login-title-minimal { color: #0F172A; font-size: 41px; font-weight: 800; letter-spacing: -0.5px; margin: 0 auto 10px auto; text-align: center !important; display: block; width: 100%; }
         .login-subtitle-minimal { color: #64748B; font-size: 15px; margin: 0 auto 40px auto; text-align: center !important; display: block; width: 100%; }
         .field-label-minimal { color: #0F172A !important; font-size: 19px; font-weight: 700; text-align: center !important; margin-bottom: 6px; margin-top: 25px; display: block; width: 100%; }
         
-        div[data-testid="stTextInput"] { width: 55% !important; margin: 0 auto !important; }
-        
-        /* Uniformiamo i box d'inserimento bianchi */
-        div[data-baseweb="input"] { border: 2px solid #CBD5E1 !important; border-radius: 8px !important; background-color: #FFFFFF !important; }
-        div[data-baseweb="input"] > div { background-color: #FFFFFF !important; }
-        input { color: #0F172A !important; font-weight: 600 !important; font-size: 19px !important; text-align: center !important; }
+        /* Design box d'inserimento ad isolamento */
+        .scatola-input-custom { width: 55%; margin: 0 auto; }
+        .input-blindato {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #CBD5E1;
+            border-radius: 8px;
+            background-color: #FFFFFF;
+            color: #0F172A;
+            font-weight: 600;
+            font-size: 19px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .input-blindato:focus {
+            border-color: #0F172A;
+            outline: none;
+        }
         
         .btn-container-minimal { width: 55%; margin: 40px auto 0 auto; }
         .btn-container-minimal button { font-size: 18px !important; font-weight: 800 !important; padding: 12px 20px !important; background-color: #0F172A !important; color: #FFFFFF !important; border-radius: 8px !important; border: none !important; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.15) !important; }
@@ -118,13 +130,13 @@ if not st.session_state.autenticato:
     st.markdown("<h1 class='login-title-minimal'>🚀 NEXA CONTROL</h1>", unsafe_allow_html=True)
     st.markdown("<p class='login-subtitle-minimal'>Pannello di Accesso Server Predittivo</p>", unsafe_allow_html=True)
     
+    # 🎯 CAMPO USERNAME ISOLATO
     st.markdown("<p class='field-label-minimal'>👤 USERNAME</p>", unsafe_allow_html=True)
-    # 🔥 BLOCCO RIGIDO: Impostando new-password anche qui, costringiamo il browser a non cercare l'utente del modem TIM
-    user_input = st.text_input("Codice Verifica Accesso", label_visibility="collapsed", autocomplete="new-password", key="nexa_gate_username_static").strip().lower()
+    user_input = st.text_input("Identificativo Interno", label_visibility="collapsed", key="canale_blindato_usr").strip().lower()
     
+    # 🎯 CAMPO PASSWORD AD ISOLAMENTO NATIVO STREAMLIT (Senza tag di attivazione auto-generazione)
     st.markdown("<p class='field-label-minimal'>🔒 PASSWORD</p>", unsafe_allow_html=True)
-    # Chiave fissa standard con tipo password nativo
-    pass_input = st.text_input("Chiave Verifica Accesso", label_visibility="collapsed", type="password", autocomplete="new-password", key="nexa_gate_password_static")
+    pass_input = st.text_input("Chiave Interna", label_visibility="collapsed", type="password", key="canale_blindato_pwd")
     
     st.markdown("<div class='btn-container-minimal'>", unsafe_allow_html=True)
     if st.button("ACCEDI AL SOFTWARE", use_container_width=True):
