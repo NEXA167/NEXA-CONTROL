@@ -84,6 +84,7 @@ if "autenticato" not in st.session_state:
     st.session_state.autenticato = False
     st.session_state.utente_attuale = ""
     st.session_state.azienda_attuale = ""
+    
 # --- 3. SCHERMATA DI LOGIN ULTRA-BLINDATA ANTI AUTOFILL ---
 if not st.session_state.autenticato:
     st.markdown("""
@@ -97,29 +98,18 @@ if not st.session_state.autenticato:
         footer, #MainMenu, .stDeployButton { visibility: hidden !important; display: none !important; }
         [data-testid="stAppDeployDocsWrapper"], button[id*="manage-app"] { display: none !important; visibility: hidden !important; }
         
-        /* Grafica e layout verticale originale */
+        /* Centratura e simmetria testi originale verticale */
         .login-title-minimal { color: #0F172A; font-size: 41px; font-weight: 800; letter-spacing: -0.5px; margin: 0 auto 10px auto; text-align: center !important; display: block; width: 100%; }
         .login-subtitle-minimal { color: #64748B; font-size: 15px; margin: 0 auto 40px auto; text-align: center !important; display: block; width: 100%; }
         .field-label-minimal { color: #0F172A !important; font-size: 19px; font-weight: 700; text-align: center !important; margin-bottom: 6px; margin-top: 25px; display: block; width: 100%; }
         
-        /* Design box d'inserimento ad isolamento */
-        .scatola-input-custom { width: 55%; margin: 0 auto; }
-        .input-blindato {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #CBD5E1;
-            border-radius: 8px;
-            background-color: #FFFFFF;
-            color: #0F172A;
-            font-weight: 600;
-            font-size: 19px;
-            text-align: center;
-            box-sizing: border-box;
-        }
-        .input-blindato:focus {
-            border-color: #0F172A;
-            outline: none;
-        }
+        /* RIPRISTINO LARGHEZZA ORIGINALE AL 55% */
+        div[data-testid="stTextInput"] { width: 55% !important; margin: 0 auto !important; }
+        
+        /* Uniformiamo i box d'inserimento bianchi */
+        div[data-baseweb="input"] { border: 2px solid #CBD5E1 !important; border-radius: 8px !important; background-color: #FFFFFF !important; }
+        div[data-baseweb="input"] > div { background-color: #FFFFFF !important; }
+        input { color: #0F172A !important; font-weight: 600 !important; font-size: 19px !important; text-align: center !important; }
         
         .btn-container-minimal { width: 55%; margin: 40px auto 0 auto; }
         .btn-container-minimal button { font-size: 18px !important; font-weight: 800 !important; padding: 12px 20px !important; background-color: #0F172A !important; color: #FFFFFF !important; border-radius: 8px !important; border: none !important; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.15) !important; }
@@ -130,13 +120,20 @@ if not st.session_state.autenticato:
     st.markdown("<h1 class='login-title-minimal'>🚀 NEXA CONTROL</h1>", unsafe_allow_html=True)
     st.markdown("<p class='login-subtitle-minimal'>Pannello di Accesso Server Predittivo</p>", unsafe_allow_html=True)
     
-    # 🎯 CAMPO USERNAME ISOLATO
-    st.markdown("<p class='field-label-minimal'>👤 USERNAME</p>", unsafe_allow_html=True)
-    user_input = st.text_input("Identificativo Interno", label_visibility="collapsed", key="canale_blindato_usr").strip().lower()
+    # 🎯 L'ESCA PER IL BROWSER: Campi finti invisibili. Il browser scaricherà il suo banner qui dentro senza che tu lo veda!
+    st.markdown("""
+        <div style="display:none;">
+            <input type="text" name="username_fake"/>
+            <input type="password" name="password_fake"/>
+        </div>
+    """, unsafe_allow_html=True)
     
-    # 🎯 CAMPO PASSWORD AD ISOLAMENTO NATIVO STREAMLIT (Senza tag di attivazione auto-generazione)
+    # --- CAMPI REALI RIPRISTINATI ALLA GRAFICA ORIGINALE ---
+    st.markdown("<p class='field-label-minimal'>👤 USERNAME</p>", unsafe_allow_html=True)
+    user_input = st.text_input("Codice Ingresso Plancia", label_visibility="collapsed", key="nexa_real_user_field").strip().lower()
+    
     st.markdown("<p class='field-label-minimal'>🔒 PASSWORD</p>", unsafe_allow_html=True)
-    pass_input = st.text_input("Chiave Interna", label_visibility="collapsed", type="password", key="canale_blindato_pwd")
+    pass_input = st.text_input("Chiave Ingresso Plancia", label_visibility="collapsed", type="password", key="nexa_real_pass_field")
     
     st.markdown("<div class='btn-container-minimal'>", unsafe_allow_html=True)
     if st.button("ACCEDI AL SOFTWARE", use_container_width=True):
@@ -151,6 +148,7 @@ if not st.session_state.autenticato:
             
     st.markdown("</div></div>", unsafe_allow_html=True)
     st.stop()
+    
 # --- 4. STILE DASHBOARD REALE ---
 st.markdown("""
     <style>
