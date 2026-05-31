@@ -141,12 +141,22 @@ st.markdown("""
     .stApp { background-color: #EBF0F5 !important; }
     .main { background-color: #EBF0F5; color: #1E293B; }
     
-    /* Applichiamo lo scudo anti tasto nero anche dentro la dashboard */
-    header[data-testid="stHeader"], div[data-testid="stHeader"], footer, #MainMenu, .stDeployButton, div[style*="position: fixed"], div[style*="position:fixed"], button[id*="manage-app"] {
+    /* 🛡️ SCUDO GLOBALE POTENZIATO: Abbate definitivamente il tasto Manage App e le strutture Cloud */
+    header[data-testid="stHeader"], div[data-testid="stHeader"], footer, #MainMenu, .stDeployButton, div[data-testid="stManageAppForm"] {
         visibility: hidden !important;
         display: none !important;
         opacity: 0 !important;
         height: 0px !important;
+    }
+    
+    /* 🔥 KILLER SPECIFICO PER IL TASTO IN BASSO A DESTRA (QUALSIASI TAG ESSO SIA) */
+    [id*="manage-app"], iframe[title="Manage app"], a[href*="streamlit.io/secret-management"], div[style*="position: fixed"][style*="bottom"][style*="right"] {
+        visibility: hidden !important;
+        display: none !important;
+        opacity: 0 !important;
+        height: 0px !important;
+        width: 0px !important;
+        pointer-events: none !important;
     }
     
     .stButton>button { background-color: #FFFFFF; color: #1E293B; border: 1px solid #CBD5E1; border-radius: 8px; font-weight: bold; padding: 8px 16px; }
