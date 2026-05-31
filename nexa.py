@@ -303,6 +303,7 @@ bep_mensile_sicurezza = (ultimo_costo_fisso + ultimo_leasing) / ultimo_margine_p
 ebitda_stimato = (ultimo_fatturato * ultimo_margine_pct) - (ultimo_costo_fisso + ultimo_leasing)
 
 incidenza_costi_pct = (costi_fissi_totali.sum() / df_attivi['Fatturato'].sum() * 100) if not df_attivi.empty and df_attivi['Fatturato'].sum() > 0 else 0.0 
+
 # --- 7. BARRA SUPERIORE ---
 header_col1, header_col2, header_col3 = st.columns([1.8, 1.1, 1.1])
 with header_col1:
@@ -312,11 +313,11 @@ with header_col1:
 with header_col2:
     if st.button("➕ INSERISCI DATI MENSILI", use_container_width=True):
         mostra_maschera_inserimento()
-    # Iniezione Fatturato Sicurezza sotto al bottone
+    # Iniezione Fatturato Sicurezza sotto al bottone con scritte maggiorate
     st.markdown(f"""
-        <div style='background-color:#FFFFFF; padding:8px; border-radius:6px; border:1px solid #E2E8F0; text-align:center; margin-top:5px; box-shadow:0 1px 2px rgba(0,0,0,0.02);'>
-            <p style='color:#64748B; font-size:10px; font-weight:700; text-transform:uppercase; margin:0;'>🎯 BEP Sicurezza</p>
-            <h4 style='color:#0F172A; margin:2px 0; font-size:15px;'>€ {bep_mensile_sicurezza:,.2f}</h4>
+        <div style='background-color:#FFFFFF; padding:15px; border-radius:6px; border:1px solid #E2E8F0; text-align:center; margin-top:5px; box-shadow:0 1px 2px rgba(0,0,0,0.02);'>
+            <p style='color:#64748B; font-size:13px; font-weight:800; text-transform:uppercase; margin:0;'>🎯 BEP Sicurezza</p>
+            <h4 style='color:#0F172A; margin:8px 0 0 0; font-size:22px; font-weight:900;'>€ {bep_mensile_sicurezza:,.2f}</h4>
         </div>
     """, unsafe_allow_html=True)
 
@@ -325,12 +326,13 @@ with header_col3:
         st.session_state.autenticato = False
         st.session_state.utente_attuale = ""
         st.rerun()
-    # Iniezione EBITDA e DSCR sotto al logout
-    colore_ebitda = "#15803D" if ebitda_stimato >= 0 else "#B91C1C"
-    if 'scadenze_attive' in df_attivi.columns and (ultime_scadenze > 0 or ultime_rateizzazioni > 0):
-        txt_dscr = f"DSCR: {dscr_calcolato:.2f}"
-    else:
-        txt_dscr = "DSCR: --"
+    # Iniezione EBITDA e DSCR sotto al logout con scritte maggiorate
+    st.markdown(f"""
+        <div style='background-color:#FFFFFF; padding:15px; border-radius:6px; border:1px solid #E2E8F0; text-align:center; margin-top:5px; box-shadow:0 1px 2px rgba(0,0,0,0.02);'>
+            <p style='color:#64748B; font-size:13px; font-weight:800; text-transform:uppercase; margin:0;'>📊 EBITDA | {txt_dscr}</p>
+            <h4 style='color:{colore_ebitda}; margin:8px 0 0 0; font-size:22px; font-weight:900;'>€ {ebitda_stimato:,.2f}</h4>
+        </div>
+    """,
         
     st.markdown(f"""
         <div style='background-color:#FFFFFF; padding:8px; border-radius:6px; border:1px solid #E2E8F0; text-align:center; margin-top:5px; box-shadow:0 1px 2px rgba(0,0,0,0.02);'>
