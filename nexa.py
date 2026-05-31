@@ -103,12 +103,12 @@ if not st.session_state.autenticato:
         .login-subtitle-minimal { color: #64748B; font-size: 15px; margin: 0 auto 40px auto; text-align: center !important; display: block; width: 100%; }
         .field-label-minimal { color: #0F172A !important; font-size: 19px; font-weight: 700; text-align: center !important; margin-bottom: 6px; margin-top: 25px; display: block; width: 100%; }
         
-        /* Larghezza originale al 55% */
+        /* Larghezza originale bloccata al 55% */
         div[data-testid="stTextInput"] { width: 55% !important; margin: 0 auto !important; }
         
         /* Uniformiamo i box d'inserimento bianchi */
-        div[data-baseweb="input"] { border: 2px solid #CBD5E1 !important; border-radius: 8px !important; background-color: #FFFFFF !important; }
-        div[data-baseweb="input"] > div { background-color: #FFFFFF !important; }
+        div[data-basWeb="input"] { border: 2px solid #CBD5E1 !important; border-radius: 8px !important; background-color: #FFFFFF !important; }
+        div[data-basWeb="input"] > div { background-color: #FFFFFF !important; }
         input { color: #0F172A !important; font-weight: 600 !important; font-size: 19px !important; text-align: center !important; }
         
         .btn-container-minimal { width: 55%; margin: 40px auto 0 auto; }
@@ -121,12 +121,11 @@ if not st.session_state.autenticato:
     st.markdown("<p class='login-subtitle-minimal'>Pannello di Accesso Server Predittivo</p>", unsafe_allow_html=True)
     
     st.markdown("<p class='field-label-minimal'>👤 USERNAME</p>", unsafe_allow_html=True)
-    # 🎯 CHIAVE NEUTRA SENZA INNESCHI AUTOFILL
-    user_input = st.text_input("Dato Alfa", label_visibility="collapsed", autocomplete="off", key="nx_alfa_data").strip().lower()
+    user_input = st.text_input("Codice Controllo Alfa", label_visibility="collapsed", autocomplete="off", key="nx_clean_alfa").strip().lower()
     
     st.markdown("<p class='field-label-minimal'>🔒 PASSWORD</p>", unsafe_allow_html=True)
-    # 🎯 CHIAVE NEUTRA + TYPE PASSWORD STANDARD CON OCCHIETTO
-    pass_input = st.text_input("Dato Beta", label_visibility="collapsed", type="password", autocomplete="off", key="nx_beta_data")
+    # 🎯 SENZA PALLINI: Rimosso type="password" e tolto ogni riferimento. Ora i caratteri restano visibili in chiaro e il browser non attiva nessun banner.
+    pass_input = st.text_input("Codice Controllo Beta", label_visibility="collapsed", autocomplete="off", key="nx_clean_beta")
     
     st.markdown("<div class='btn-container-minimal'>", unsafe_allow_html=True)
     if st.button("ACCEDI AL SOFTWARE", use_container_width=True):
