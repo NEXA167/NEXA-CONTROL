@@ -644,10 +644,13 @@ def invia_email_onboarding(email_destinatario, nome_cliente, username_generato, 
         print(f"Errore SMTP Onboarding: {str(e)}")
         return False
         
-  # --- 12. INTERFACCIA AMMINISTRAZIONE, GESTIONE LICENZE (12 MESI) & CANCELLAZIONE ---
+ # --- 12. INTERFACCIA AMMINISTRAZIONE, GESTIONE LICENZE (12 MESI) & CANCELLAZIONE ---
 import datetime
 
-if st.session_state.autenticato and st.session_state.utente_attuale.lower() in ['arteq', 'monica']:
+# Verifichiamo l'accesso amministrativo in modo isolato per non sballare gli utenti esterni
+is_admin = st.session_state.get("autenticato", False) and st.session_state.get("utente_attuale", "").lower() in ['arteq', 'monica']
+
+if is_admin:
     st.markdown("---")
     st.markdown("## ⚙️ Pannello di Controllo Licenze & Onboarding")
     
